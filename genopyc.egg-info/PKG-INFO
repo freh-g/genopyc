@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: genopyc
+Version: 0.1.1
+Author: Francesco Gualdi
+License: GPL
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# genomictool
+
+Genopyc master is a library for performing various task on genetic data. To learn more about it refers to [tutorials](tutorials/Genopyc-tutorial-notebook.ipynb)
