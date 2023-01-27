@@ -3,29 +3,33 @@ import pandas as pd
 from tqdm import tqdm
 import numpy as np
 
-##Retrieves associations to an efo trait
-##Retrieves associations to an efo trait
+
 def get_associations(efotrait,verbose=False):
+    """Retrieve snps associated to an EFO trait"""
     df=pd.DataFrame(columns=['variantid','p-value','risk_allele','RAF','beta','CI','mapped_gene'])
     http= 'https://www.ebi.ac.uk/gwas/rest/api/efoTraits/%s/associations' %(efotrait)
     if verbose:
         print('querying associations... \n')
-    associ=requests.get(http).json()
-    if verbose:
-        print('building the dataframe...')
-    for i,element in enumerate(associ['_embedded']['associations']):
-        try:
-            df.at[i,'variantid']=''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
-            df.at[i,'risk_allele']=element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[-1]
-            df.at[i,'mapped_gene']=[e['geneName'] for e in element['loci'][0]['authorReportedGenes']]
-            df.at[i,'p-value']=float(element['pvalueMantissa'])*10**int(element['pvalueExponent'])
-            df.at[i,'RAF']=float(element['riskFrequency'])
-            df.at[i,'beta']=[float(element['betaNum']) if type(element['betaNum'])==float else None][0]
-            df.at[i,'SE']=float(element['standardError'])
-            df.at[i,'CI']=element['range']
-        except:
-            pass
-    return df
+    resp=requests.get(http)
+    if resp.ok:
+        associ=resp.json()
+        if verbose:
+            print('building the dataframe...')
+        for i,element in enumerate(associ['_embedded']['associations']):
+            try:
+                df.at[i,'variantid']=''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
+                df.at[i,'risk_allele']=element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[-1]
+                df.at[i,'mapped_gene']=[e['geneName'] for e in element['loci'][0]['authorReportedGenes']]
+                df.at[i,'p-value']=float(element['pvalueMantissa'])*10**int(element['pvalueExponent'])
+                df.at[i,'RAF']=float(element['riskFrequency'])
+                df.at[i,'beta']=[float(element['betaNum']) if type(element['betaNum'])==float else None][0]
+                df.at[i,'SE']=float(element['standardError'])
+                df.at[i,'CI']=element['range']
+            except:
+                pass
+        return df
+    else:
+        raise (f'ERROR: Bad Resquest: \n {resp}')
 
 
 
