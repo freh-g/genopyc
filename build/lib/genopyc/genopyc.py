@@ -29,7 +29,7 @@ def get_associations(efotrait,verbose=False):
                 pass
         return df
     else:
-        raise (f'ERROR: Bad Resquest: \n {resp}')
+         print(f'ERROR: Bad Resquest: \n {resp}')
 
 
 
