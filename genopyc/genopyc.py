@@ -21,12 +21,18 @@ def get_associations(efotrait,verbose=False):
                 df.at[i,'risk_allele']=element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[-1]
                 df.at[i,'mapped_gene']=[e['geneName'] for e in element['loci'][0]['authorReportedGenes']]
                 df.at[i,'p-value']=float(element['pvalueMantissa'])*10**int(element['pvalueExponent'])
-                df.at[i,'RAF']=float(element['riskFrequency'])
-                df.at[i,'beta']=[float(element['betaNum']) if type(element['betaNum'])==float else None][0]
-                df.at[i,'SE']=float(element['standardError'])
+                try: 
+                    df.at[i,'RAF']=float(element['riskFrequency'])
+                except:
+                    df.at[i,'RAF']=np.nan
+                    
+                df.at[i,'beta']=[float(element['betaNum']) if type(element['betaNum'])==float else np.nan][0]
+                df.at[i,'SE']=element['standardError']
                 df.at[i,'CI']=element['range']
-            except:
+            except Exception as e:
+                print(f'error {e} for element {element}')
                 pass
+        df['p-value']=["{:.2e}".format(x) for x in df['p-value'].tolist()]        
         return df
     else:
          print(f'ERROR: Bad Resquest: \n {resp}')
