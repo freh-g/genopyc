@@ -32,7 +32,9 @@ def get_associations(efotrait,verbose=False):
             except Exception as e:
                 print(f'error {e} for element {element}')
                 pass
-        df['p-value']=["{:.2e}".format(x) for x in df['p-value'].tolist()]        
+        df.fillna(np.nan,None,inplace = True)
+        df['p-value'] = df['p-value'].map("{:.1e}".format)
+
         return df
     else:
          print(f'ERROR: Bad Resquest: \n {resp}')
