@@ -13,7 +13,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='genopyc',
     packages=find_packages(),
-    version='0.1.9',
+    version='0.2.0',
     long_description=long_description,
     install_requires=['requests','tqdm','pandas','numpy'],
     long_description_content_type='text/markdown',
