@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Gualdi
+  given-names: Francesco
+  orcid: https://orcid.org/0000-0003-0449-9884
+- family-names: Piñero
+  given-names: Janet
+  orcid: https://orcid.org/0000-0003-1244-7654
+- family-names: Oliva
+  given-names: Baldomero
+  orcid: https://orcid.org/0000-0003-0702-0250
+title: "Genopyc"
+version: 1.0.0
+doi: 10.5281/zenodo.8233801
+date-released: 2023-08-10
+url: https://github.com/freh-g/genopyc

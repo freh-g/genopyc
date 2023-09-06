@@ -1,0 +1,11 @@
+LICENSE.txt
+README.md
+setup.py
+genopyc/__init__.py
+genopyc/genopyc.py
+genopyc.egg-info/PKG-INFO
+genopyc.egg-info/SOURCES.txt
+genopyc.egg-info/dependency_links.txt
+genopyc.egg-info/requires.txt
+genopyc.egg-info/top_level.txt
+genopyc/data/hippie_interactome.sif
