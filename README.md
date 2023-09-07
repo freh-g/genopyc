@@ -1,4 +1,6 @@
-<img src="https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true" width="60%" height="60%">
+<p align="center">
+ <img src="https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true" width="60%" height="60%">
+</p>
 <!--[figure 1](https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true)-->
 
 # Genopyc
