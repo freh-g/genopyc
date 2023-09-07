@@ -1,5 +1,5 @@
-![figure 1](https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true width="60%" height="30%")
-
+<img src="https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true" width="60" height="60">
+<!--[figure 1](https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true)-->
 # Genopyc
 
 Genopyc is a Python  library for investigating the effect of genetic variants on the downstream pathways. It allows to perform various tasks such as retrieve the functional elements neighbouring genomic coordinates, investigating linkage disequilibrium (LD), annotate variants, retrieving genes affected by non coding variants and perform and visualize functional enrichment analysis.  
