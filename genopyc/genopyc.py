@@ -21,6 +21,7 @@ import dash_cytoscape as cyto
 
 
 def get_associations(efotrait,verbose=False):
+    loe=[]
     """Retrieve snps associated to an EFO trait"""
     df=pd.DataFrame(columns=['variantid','p-value','risk_allele','RAF','beta','CI','mapped_gene'])
     http= 'https://www.ebi.ac.uk/gwas/rest/api/efoTraits/%s/associations' %(efotrait)
@@ -33,10 +34,12 @@ def get_associations(efotrait,verbose=False):
             print('building the dataframe...')
         for i,element in enumerate(associ['_embedded']['associations']):
             try:
-                df.at[i,'variantid']=''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
+                variantid = ''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
+                df.at[i,'variantid']= variantid
                 df.at[i,'risk_allele']=element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[-1]
                 df.at[i,'mapped_gene']= ' '.join([str(elem) for elem in [e['geneName'] for e in element['loci'][0]['authorReportedGenes']]])
                 df.at[i,'p-value']=float(element['pvalueMantissa'])*10**int(element['pvalueExponent'])
+                
                 try: 
                     df.at[i,'RAF']=float(element['riskFrequency'])
                 except:
@@ -45,15 +48,22 @@ def get_associations(efotrait,verbose=False):
                 df.at[i,'beta']=[float(element['betaNum']) if type(element['betaNum'])==float else np.nan][0]
                 df.at[i,'SE']=element['standardError']
                 df.at[i,'CI']=element['range']
+                try:
+                    study_link = element['_links']['study']['href']
+                    df.at[i,'study'] = study_link
+                except Exception as e:
+                    
+                    df.at[i,'study'] = np.nan
+                    print(e, f"Couldn't retreive studyID for variant {variantid}")
+                     
             except Exception as e:
                 print(f'error {e} for element {element}')
                 pass
         df.fillna(np.nan, method = None,inplace = True)
         df['p-value'] = df['p-value'].map("{:.1e}".format)
-
-        return df
     else:
          print(f'ERROR: Bad Resquest: \n {resp}')
+    return df
 
 
 
