@@ -68,7 +68,9 @@ def get_associations(efotrait,verbose=False):
 
 
 #retrieve the coordinates of many genes
-def get_gene_position_many(idlist,chunked=False,chunksize=200):
+def get_gene_position(idlist,chunked=False,chunksize=200):
+    if not type(idlist) == list:
+        idlist = [idlist]
 
     """ This function accept a list of ensembl Ids and return the coordinates in the GHRC38 if the list is longer than 200 it needs to be chunked because ensembl accepts maximum a request of 200 Ids per time"""
 
@@ -112,7 +114,10 @@ def get_gene_position_many(idlist,chunked=False,chunksize=200):
                 pass
         return ListOfTuples
 
-def get_variant_position_many(idlist,chunked=False,chunksize=200):
+def get_variant_position(idlist,chunked=False,chunksize=200):
+    if not type(idlist) == list:
+        idlist = [idlist]
+        
     http="https://rest.ensembl.org/variation/homo_sapiens"
     headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
     if chunked | len(idlist) > 200:
@@ -151,7 +156,6 @@ def get_variant_position_many(idlist,chunked=False,chunksize=200):
                 print(f"Couldn't Retrieve Position for variant {key}")
                 pass        
         return results
-
 
 def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
     '''Variants must be fed in HGVS notation that is cr:glocREF>ALT'''
@@ -517,13 +521,11 @@ def get_eqtl_variant(rsid):
     url='http://www.ebi.ac.uk/eqtl/api/associations/%s'%(rsid)
     risp=requests.get(url).json()
     return risp
-## return single variant info ##
-def get_variant_info(variant):
-    http= "https://rest.ensembl.org/variation/human/%s?"%(variant)
-    associ=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
-    return associ
 
-def get_variant_info_many(idlist, chunked=False,chunksize=200):
+
+def get_variant_info(idlist, chunked=False,chunksize=200):
+    if not type(idlist) == list:
+        idlist = [idlist]
     http="https://rest.ensembl.org/variation/homo_sapiens"
     headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
     chunked_idlist=[]
