@@ -492,16 +492,15 @@ def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False
     """ Retrieve the closeset upstream and downstrem genes given a point genomic location """
     starting_window = position - window_size//2
     end_window = position + window_size//2
-    elements =  get_ov_region(chromosome,starting_window,end_window, features=['gene'])
-    
+    elements =  gp.get_ov_region(chr=chromosome,start=starting_window,stop = end_window, features=['gene'])
     all_genes = []
-    for e in elements:
+    for i,r in elements[0].iterrows():
         if type_of_gene:
-            if e['biotype'] == type_of_gene:
-                all_genes.append((e['gene_id'],e['start'] - position,e['end'] - position))
+            if r['biotype'] == type_of_gene:
+                all_genes.append((r['gene_id'],r['start'] - position,r['end'] - position))
         else:
             
-            all_genes.append((e['gene_id'],e['start'] - position,e['end'] - position))
+            all_genes.append((r['gene_id'],r['start'] - position,r['end'] - position))
 
             
     
@@ -526,6 +525,7 @@ def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False
         closest_upstream_gene = ''
 
     return (positionid,closest_upstream_gene,closest_downstream_gene)
+
 
 
 #Retrieves the nucleotide sequence of a given position 
@@ -587,13 +587,13 @@ def get_eqtl_df(rsid,p_value=0.005,increase_index=False):
 
 
 
-def get_genes(cr,start,stop,window=10000,pop='EUR',features=['gene'],mode='all'):
+def get_genes(cr,location,window_size=10000,pop='EUR',features=['gene'],mode='all'):
     
     """
     Retrieve genes in a window centered in a genomic position and compute the distance between the position and all the genes
     """
-    winstart=start-window//2
-    winend=stop+window//2
+    winstart=location-window_size//2
+    winend=location+window_size//2
     str_features=';'.join(['feature='+x for x in features])
     http="https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s"%(cr,winstart,winend,str_features)
     risposta=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
