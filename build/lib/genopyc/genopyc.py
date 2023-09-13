@@ -72,7 +72,7 @@ def get_associations(efotrait,verbose=False):
 
 
 #retrieve the coordinates of many genes
-def get_gene_position(idlist,chunked=False,chunksize=200):
+def get_genes_position(idlist,chunked=False,chunksize=200):
     if not type(idlist) == list:
         idlist = [idlist]
 
@@ -118,7 +118,7 @@ def get_gene_position(idlist,chunked=False,chunksize=200):
                 pass
         return ListOfTuples
 
-def get_variant_position(idlist,chunked=False,chunksize=200):
+def get_variants_position(idlist,chunked=False,chunksize=200):
     if not type(idlist) == list:
         idlist = [idlist]
         
@@ -467,7 +467,7 @@ def get_ov_region(snp= None, chr=None,start=None, stop=None, window=500, feature
     str_features=';'.join(['feature='+x for x in features])
 
     if mode == 'SNP':
-        pos = get_variant_position(snp)
+        pos = get_variants_position(snp)
         chr = int(pos[0][1])
         genomic_location = pos[0][2]
         start=genomic_location-window//2
