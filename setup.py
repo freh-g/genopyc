@@ -13,10 +13,10 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='genopyc',
     packages=find_packages(),
-    version='1.2.3',
+    version='2.0.0',
     long_description=long_description,
     include_package_data=True,
-    package_data={'genopyc': ['data/*.sif']},
+    package_data={'genopyc': ['data/*']},
     install_requires=['requests','pandas','numpy','networkx','igraph','biomapy','dash','dash_cytoscape','gprofiler_official'],
     long_description_content_type='text/markdown',
     author='Francesco Gualdi',

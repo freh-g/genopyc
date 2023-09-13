@@ -9,3 +9,4 @@ genopyc.egg-info/dependency_links.txt
 genopyc.egg-info/requires.txt
 genopyc.egg-info/top_level.txt
 genopyc/data/hippie_interactome.sif
+genopyc/data/uberon_dict.pickle

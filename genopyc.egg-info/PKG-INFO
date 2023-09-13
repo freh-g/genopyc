@@ -1,12 +1,15 @@
 Metadata-Version: 2.1
 Name: genopyc
-Version: 1.2.3
+Version: 2.0.0
 Author: Francesco Gualdi
 License: GPL
 Description-Content-Type: text/markdown
 License-File: LICENSE.txt
 
-![figure 1](https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true)
+<p align="center">
+ <img src="https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true" width="60%" height="60%">
+</p>
+<!--[figure 1](https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true)-->
 
 # Genopyc
 

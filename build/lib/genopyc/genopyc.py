@@ -1,7 +1,10 @@
 import requests
 import pandas as pd
 import biomapy as bp
+import pickle
 import os
+import ast
+from collections import Counter
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -21,6 +24,7 @@ import dash_cytoscape as cyto
 
 
 def get_associations(efotrait,verbose=False):
+    loe=[]
     """Retrieve snps associated to an EFO trait"""
     df=pd.DataFrame(columns=['variantid','p-value','risk_allele','RAF','beta','CI','mapped_gene'])
     http= 'https://www.ebi.ac.uk/gwas/rest/api/efoTraits/%s/associations' %(efotrait)
@@ -33,10 +37,12 @@ def get_associations(efotrait,verbose=False):
             print('building the dataframe...')
         for i,element in enumerate(associ['_embedded']['associations']):
             try:
-                df.at[i,'variantid']=''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
+                variantid = ''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
+                df.at[i,'variantid']= variantid
                 df.at[i,'risk_allele']=element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[-1]
                 df.at[i,'mapped_gene']= ' '.join([str(elem) for elem in [e['geneName'] for e in element['loci'][0]['authorReportedGenes']]])
                 df.at[i,'p-value']=float(element['pvalueMantissa'])*10**int(element['pvalueExponent'])
+                
                 try: 
                     df.at[i,'RAF']=float(element['riskFrequency'])
                 except:
@@ -45,20 +51,30 @@ def get_associations(efotrait,verbose=False):
                 df.at[i,'beta']=[float(element['betaNum']) if type(element['betaNum'])==float else np.nan][0]
                 df.at[i,'SE']=element['standardError']
                 df.at[i,'CI']=element['range']
+                try:
+                    study_link = element['_links']['study']['href']
+
+                    df.at[i,'study'] = study_link
+                except Exception as e:
+                    
+                    df.at[i,'study'] = np.nan
+                    print(e, f"Couldn't retreive studyID for variant {variantid}")
+                     
             except Exception as e:
                 print(f'error {e} for element {element}')
                 pass
         df.fillna(np.nan, method = None,inplace = True)
         df['p-value'] = df['p-value'].map("{:.1e}".format)
-
-        return df
     else:
          print(f'ERROR: Bad Resquest: \n {resp}')
+    return df
 
 
 
 #retrieve the coordinates of many genes
-def get_gene_position_many(idlist,chunked=False,chunksize=200):
+def get_gene_position(idlist,chunked=False,chunksize=200):
+    if not type(idlist) == list:
+        idlist = [idlist]
 
     """ This function accept a list of ensembl Ids and return the coordinates in the GHRC38 if the list is longer than 200 it needs to be chunked because ensembl accepts maximum a request of 200 Ids per time"""
 
@@ -102,7 +118,10 @@ def get_gene_position_many(idlist,chunked=False,chunksize=200):
                 pass
         return ListOfTuples
 
-def get_variant_position_many(idlist,chunked=False,chunksize=200):
+def get_variant_position(idlist,chunked=False,chunksize=200):
+    if not type(idlist) == list:
+        idlist = [idlist]
+        
     http="https://rest.ensembl.org/variation/homo_sapiens"
     headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
     if chunked | len(idlist) > 200:
@@ -142,34 +161,58 @@ def get_variant_position_many(idlist,chunked=False,chunksize=200):
                 pass        
         return results
 
+        
 
-def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
-    '''Variants must be fed in HGVS notation that is cr:glocREF>ALT'''
-    http="https://rest.ensembl.org/vep/human/hgvs"
-    headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
-    chunked_idlist=[]
-    if chunked | len(idlist) > 200:
-        print('total number of chunks: %s' %(int(len(idlist)/chunksize)+1))
-        for i in range(0,len(idlist),chunksize):
-            chunked_idlist.append(idlist[i:i+chunksize])
-        results=[]
-        for i,chunk in enumerate(chunked_idlist):
-            response = requests.post(http, headers=headers, 
-                                     data="{" + '"hgvs_notations" : {}'.format(str(chunk).replace("'",'"'))+"}")
-            results.append(response.json())
-            print('chunk %s processed' % (i))
-    
-        req_results=sum(results,[])
+        
+
+def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=False):
+    if input_type == 'hgvs':
+        http="https://rest.ensembl.org/vep/human/hgvs"
+        headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
+        chunked_idlist=[]
+        if chunked | len(idlist) > 200:
+            print('total number of chunks: %s' %(int(len(idlist)/chunksize)+1))
+            for i in range(0,len(idlist),chunksize):
+                chunked_idlist.append(idlist[i:i+chunksize])
+            results=[]
+            for i,chunk in enumerate(chunked_idlist):
+                response = requests.post(http, headers=headers, 
+                                        data="{" + '"hgvs_notations" : {}'.format(str(chunk).replace("'",'"'))+"}")
+                results.append(response.json())
+                print('chunk %s processed' % (i))
+        
+            req_results=sum(results,[])
+        else:
+            results = requests.post(http, headers=headers, 
+                                        data="{" + '"hgvs_notations" : {}'.format(str(idlist).replace("'",'"'))+"}")
+            req_results=results.json()
     else:
-        results = requests.post(http, headers=headers, 
-                                     data="{" + '"hgvs_notations" : {}'.format(str(idlist).replace("'",'"'))+"}")
-        req_results=results.json()
-    
+        http="https://rest.ensembl.org/vep/human/id/"
+        headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
+        chunked_idlist=[]
+        if chunked | len(idlist) > 200:
+            print('total number of chunks: %s' %(int(len(idlist)/chunksize)+1))
+            for i in range(0,len(idlist),chunksize):
+                chunked_idlist.append(idlist[i:i+chunksize])
+            results=[]
+            for i,chunk in enumerate(chunked_idlist):
+                response = requests.post(http, headers=headers, 
+                                        data="{" + '"ids" : {}'.format(str(chunk).replace("'",'"'))+"}")
+                results.append(response.json())
+                print('chunk %s processed' % (i))
+        
+            req_results=sum(results,[])
+        else:
+            results = requests.post(http, headers=headers, 
+                                        data="{" + '"ids" : {}'.format(str(idlist).replace("'",'"'))+"}")
+            req_results=results.json()
+        
     
     final_transcript_consequences=[]
     final_intergenic_consequences=[]
     final_regulatory_feature_consequences=[]
     final_motif_consequences=[]
+
     for dict_of_resu in req_results:
         variant_id=dict_of_resu['input']
         #Check Transcript Consequences
@@ -179,7 +222,7 @@ def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
                 consequence_terms=tc['consequence_terms']
                 gene_id=tc['gene_id']
                 biotype=tc['biotype']
-                final_transcript_consequences.append((variant_id,consequence_terms,biotype,gene_id))
+                final_transcript_consequences.append((variant_id,str(consequence_terms),biotype,gene_id))
 
             n_of_tc=len(transcript_consequences)
         except Exception as error:
@@ -193,7 +236,7 @@ def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
             for ic in intergenic_consequences :
                 consequence_terms=ic['consequence_terms']
                 impact=ic['impact']
-                final_intergenic_consequences.append((variant_id,consequence_terms,impact))
+                final_intergenic_consequences.append((variant_id,str(consequence_terms),impact))
                 n_of_ic=len(intergenic_consequences)
 
 
@@ -211,7 +254,7 @@ def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
                 consequence_terms=rfc['consequence_terms']
                 impact=rfc['impact']
                 biotype=rfc['biotype']
-                final_regulatory_feature_consequences.append((variant_id,consequence_terms,biotype,impact))
+                final_regulatory_feature_consequences.append((variant_id,str(consequence_terms),biotype,impact))
                 n_of_rfc=len(regulatory_feature_consequences)
 
 
@@ -226,7 +269,7 @@ def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
                 consequence_terms=mfc['consequence_terms']
                 tf=mfc['transcription_factors']
                 impact=mfc['motif_score_change']
-                final_motif_consequences.append((variant_id,consequence_terms,tf,impact))
+                final_motif_consequences.append((variant_id,str(consequence_terms),str(tf),impact))
                 n_of_mfc=len(motif_consequences)
 
 
@@ -239,115 +282,94 @@ def HGVS_VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
             print(f"{variant_id} has {n_of_tc} transcript consquence, {n_of_ic} intergenic consquence, {n_of_rfc} regulatory feature consequence, {n_of_mfc} motif feature consequences")
 
     if all_data:
-        return req_resu
+        return req_results
+
+    final_transcript_consequences_df = pd.DataFrame(list(set(final_transcript_consequences)),columns=['variantid','effects','biotype','ENSID'])
+    final_regulatory_feature_consequences_df = pd.DataFrame(list(set(final_regulatory_feature_consequences)),columns=['variantid','effects','biotype','impact'])
+    final_intergenic_consequences_df = pd.DataFrame(list(set(final_intergenic_consequences)),columns=['variantid','effects','impact'])
+    final_motif_consequences_df = pd.DataFrame(list(set(final_motif_consequences)),columns=['variantid','effects','TF','impact_score'])
+    lodfs = [final_intergenic_consequences_df,final_transcript_consequences_df,final_regulatory_feature_consequences_df,final_motif_consequences_df]
+    if plot:
+        rsid_consequences=sum([ast.literal_eval(tup[1]) for tup in final_transcript_consequences]+[ast.literal_eval(tup[1]) for tup in final_regulatory_feature_consequences]+[ast.literal_eval(tup[1]) for tup in final_intergenic_consequences]+[ast.literal_eval(tup[1]) for tup in final_motif_consequences],[])
+        
+        data=dict(Counter(rsid_consequences))
+        counts=list(data.values())
+        percentages = [(val/sum(counts))*100 for val in counts]
+        names=data.keys()
+
+
+        legend_labels=['{0} - {1:1.2f} %'.format(i,j) for i,j in zip(names, percentages)]
+
+        colors=plt.cm.tab20c.colors
+
+        fig,ax=plt.subplots(figsize=(20,10))
+        patches,text=ax.pie(data.values(),
+            colors = colors,
+            textprops={'fontsize': 12})
+
+
+        ax.legend(patches, legend_labels, bbox_to_anchor=(1,1.050), loc="upper left",fontsize=12)
+        
+        fig.suptitle("VEP RESULTS",fontsize=15)
+        plt.tight_layout()
+        if save_plot:
+            plt.savefig('Vep_results.png',dpi=350)
+        plt.show()
+    return lodfs
     
-    return final_transcript_consequences, final_regulatory_feature_consequences, final_intergenic_consequences,final_motif_consequences
-        
-
-        
-
-def VEP(idlist, chunked=False,chunksize=200,verbose=False,all_data=False):
-    http="https://rest.ensembl.org/vep/human/id/"
+## return single variant info ##
+def get_variants_info(idlist, chunked=False,chunksize=200):
+    if not type(idlist) == list:
+        idlist = [idlist]
+    http="https://rest.ensembl.org/variation/homo_sapiens"
     headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
     chunked_idlist=[]
-    if chunked | len(idlist) > 200:
+    if chunked | len(idlist)>200:
         print('total number of chunks: %s' %(int(len(idlist)/chunksize)+1))
         for i in range(0,len(idlist),chunksize):
             chunked_idlist.append(idlist[i:i+chunksize])
-        results=[]
+        results={}
         for i,chunk in enumerate(chunked_idlist):
             response = requests.post(http, headers=headers, 
                                      data="{" + '"ids" : {}'.format(str(chunk).replace("'",'"'))+"}")
-            results.append(response.json())
+            results.update(response.json())
             print('chunk %s processed' % (i))
-    
-        req_results=sum(results,[])
+        return results
+
     else:
-        results = requests.post(http, headers=headers, 
+        response = requests.post(http, headers=headers, 
                                      data="{" + '"ids" : {}'.format(str(idlist).replace("'",'"'))+"}")
-        req_results=results.json()
-    
-    
-    final_transcript_consequences=[]
-    final_intergenic_consequences=[]
-    final_regulatory_feature_consequences=[]
-    final_motif_consequences=[]
+        return response.json()
 
-    for dict_of_resu in req_results:
-        variant_id=dict_of_resu['input']
-        #Check Transcript Consequences
-        try:
-            transcript_consequences=dict_of_resu['transcript_consequences']
-            for tc in transcript_consequences :
-                consequence_terms=tc['consequence_terms']
-                gene_id=tc['gene_id']
-                biotype=tc['biotype']
-                final_transcript_consequences.append((variant_id,consequence_terms,biotype,gene_id))
-
-            n_of_tc=len(transcript_consequences)
-        except Exception as error:
-            n_of_tc=0
-
-
-
-        #Check Intergenic Consequences
-        try:
-            intergenic_consequences=dict_of_resu['intergenic_consequences']
-            for ic in intergenic_consequences :
-                consequence_terms=ic['consequence_terms']
-                impact=ic['impact']
-                final_intergenic_consequences.append((variant_id,consequence_terms,impact))
-                n_of_ic=len(intergenic_consequences)
-
-
-        except Exception as error:
-            n_of_ic=0
-
-
-
-
-        #Check regulatory_feature_consequences
-        try:
-            regulatory_feature_consequences=dict_of_resu['regulatory_feature_consequences']
-
-            for rfc in regulatory_feature_consequences :
-                consequence_terms=rfc['consequence_terms']
-                impact=rfc['impact']
-                biotype=rfc['biotype']
-                final_regulatory_feature_consequences.append((variant_id,consequence_terms,biotype,impact))
-                n_of_rfc=len(regulatory_feature_consequences)
-
-
-        except Exception as error:
-            n_of_rfc=0
         
-        #Check motif feature consequences
-        try:
-            motif_consequences=dict_of_resu['motif_feature_consequences']
-
-            for mfc in motif_consequences :
-                consequence_terms=mfc['consequence_terms']
-                tf=mfc['transcription_factors']
-                impact=mfc['motif_score_change']
-                final_motif_consequences.append((variant_id,consequence_terms,tf,impact))
-                n_of_mfc=len(motif_consequences)
+def get_ancestral_allele(variants, mode = 'most_frequent'):
+    variant_info = get_variants_info(variants)
+    variant_mappings = dict(zip(variant_info.keys(),[info['mappings'] for info in variant_info.values()]))
+    if mode == 'most_frequent':
+        def most_frequent(List):
+            return max(set(List), key = List.count)
 
 
-        except Exception as error:
-            n_of_mfc=0
+        variant_ancestral_alleles={}
+        for rsid,mappings in variant_mappings.items():
+            if len(mappings)>1:
+                list_of_alleles=[]
+                for element in mappings:
+                    ref_allele=element['allele_string'].split('/')[0]
+                    list_of_alleles.append(ref_allele)        
+                try:
+                    variant_ancestral_alleles[rsid]=most_frequent(list_of_alleles)
+                except Exception as error:
+                    print(f'Error for rsid {rsid}: ' + repr(error))
+            else:
+                try:
+                    ref_allele=mappings[0]['allele_string'].split('/')[0]
+                    variant_ancestral_alleles[rsid]=mappings[0]['ancestral_allele']
+                except Exception as error:
+                    print(f'Error for rsid {rsid}: ' + repr(error) + ' MAPPINGS = ' + str(mappings))
 
-
-
-        if verbose:
-            print(f"{variant_id} has {n_of_tc} transcript consquence, {n_of_ic} intergenic consquence, {n_of_rfc} regulatory feature consequence, {n_of_mfc} motif feature consequences")
-
-    if all_data:
-        return req_resu
-    
-    return final_transcript_consequences, final_regulatory_feature_consequences, final_intergenic_consequences,final_motif_consequences
-    
-        
-        
+        variant_ancestral_alleles={k:v for k,v in variant_ancestral_alleles.items() if v !=None}
+        return variant_ancestral_alleles        
 #Retrieves variant in LD with a given variant
 def get_variants_in_LD(variant,r2,pop='EUR'):
     http= "https://rest.ensembl.org/ld/human/%s/1000GENOMES:phase_3:%s?r2=%s" %(variant,pop,r2)
@@ -441,11 +463,30 @@ def get_phenotypes(chromosome,start,stop,feature_type='Genes',only_phenotypes=1)
     return annot.json()
 
 #Retrieves overlapping elements of a given region 
-def get_ov_region(chromosome,start,stop,features=list):
+def get_ov_region(snp= None, chr=None,start=None, stop=None, window=500, features=list, mode='region'):
     str_features=';'.join(['feature='+x for x in features])
-    http="https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s"%(chromosome,start,stop,str_features)
+
+    if mode == 'SNP':
+        pos = get_variant_position(snp)
+        chr = int(pos[0][1])
+        genomic_location = pos[0][2]
+        start=genomic_location-window//2
+        stop=genomic_location+window//2
+       
+    http="https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s"%(chr,start,stop,str_features)
     risposta=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
-    return risposta
+    lodfs = []
+    list_of_features_retrieved = list(set([e['feature_type'] for e in risposta]))
+    for x in list_of_features_retrieved:
+        tmp_list = [dict(sorted(e.items())) for e in risposta if e['feature_type'] == x]
+        cols = tmp_list[0].keys()
+        data = []
+        for i,f in enumerate(tmp_list):
+            data.append(f.values())
+        e = locals()[x + '_df'] = pd.DataFrame(data,columns=cols)
+
+        lodfs.append(e)
+    return lodfs
 
 def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False):
     """ Retrieve the closeset upstream and downstrem genes given a point genomic location """
@@ -507,40 +548,17 @@ def get_eqtl_variant(rsid):
     url='http://www.ebi.ac.uk/eqtl/api/associations/%s'%(rsid)
     risp=requests.get(url).json()
     return risp
-## return single variant info ##
-def get_variant_info(variant):
-    http= "https://rest.ensembl.org/variation/human/%s?"%(variant)
-    associ=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
-    return associ
-
-def get_variant_info_many(idlist, chunked=False,chunksize=200):
-    http="https://rest.ensembl.org/variation/homo_sapiens"
-    headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
-    chunked_idlist=[]
-    if chunked | len(idlist)>200:
-        print('total number of chunks: %s' %(int(len(idlist)/chunksize)+1))
-        for i in range(0,len(idlist),chunksize):
-            chunked_idlist.append(idlist[i:i+chunksize])
-        results={}
-        for i,chunk in enumerate(chunked_idlist):
-            response = requests.post(http, headers=headers, 
-                                     data="{" + '"ids" : {}'.format(str(chunk).replace("'",'"'))+"}")
-            results.update(response.json())
-            print('chunk %s processed' % (i))
-        return results
-
-    else:
-        response = requests.post(http, headers=headers, 
-                                     data="{" + '"ids" : {}'.format(str(idlist).replace("'",'"'))+"}")
-        return response.json()
 
 
 def get_eqtl_df(rsid,p_value=0.005,increase_index=False):
+    location = os.path.dirname(os.path.realpath(__file__))
+    out = os.path.join(location, 'data')
+    with open(out+'/uberon_dict.pickle','rb') as f:
+        ubdict = pickle.load(f)
     url='http://www.ebi.ac.uk/eqtl/api/associations/%s?size=1000'%(rsid)
     response=requests.get(url)
     eqtls=response.json()
     try:
-        genes_eqtls=[]
         eqtl_df=pd.DataFrame(columns=['variantid','p_value','log_pval','beta','alt','gene_id','tissue','study_id'])
         for ass in eqtls['_embedded']['associations'].keys():
             pval=eqtls['_embedded']['associations'][ass]['pvalue']
@@ -553,6 +571,8 @@ def get_eqtl_df(rsid,p_value=0.005,increase_index=False):
             eqtl_df.loc[ass]=[rsid,pval,nlog_pval,beta,alt,geneid,tissue,study]
             
         eqtl_df=eqtl_df.loc[eqtl_df.p_value<=p_value]
+        eqtl_df.tissue = eqtl_df.tissue.apply(lambda x: x.replace('UBER_','UBERON_'))
+        eqtl_df['tissue_name'] = list(map(ubdict.get,eqtl_df.tissue.tolist()))
         
         eqtl_df=eqtl_df.reset_index(drop=True)
         if increase_index:
@@ -627,7 +647,7 @@ def get_genes(cr,start,stop,window=10000,pop='EUR',features=['gene'],mode='all')
 
 
         
-def ConvertVariantsForOT(ListOfVariants,source='variantid',target='rsid'):
+def convert_variants(ListOfVariants,source='variantid',target='rsid'):
     
     OT_url='https://api.genetics.opentargets.org/graphql'
     MappingDict={}
@@ -682,9 +702,14 @@ def OT_L2G(ListofVariants,score=0.1,output='genes'):
             ResultsForVariant.append((data['gene']['id'],data['overallScore']))
         results[variant]=ResultsForVariant
     if output=='all':
-        return results
-    elif output=='GenScor':
-        return {key:[value for value in values if value[1]>score] for (key,values) in results.items()}
+        raw_data = {key:sorted(value, key=lambda x: x[1],reverse=True) for key,value in results.items()}
+        cols = ['id','gene','score']
+        data = []
+        for k,v in raw_data.items():
+            for gene in v:
+                data.append((k,gene[0],gene[1]))
+        res = pd.DataFrame(data,columns=cols)
+        return res
     else:
         return list(set(sum([[value[0] for value in values if value[1]>score] for (key,values) in results.items()],[])))
     
