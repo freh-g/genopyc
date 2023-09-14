@@ -492,7 +492,7 @@ def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False
     """ Retrieve the closeset upstream and downstrem genes given a point genomic location """
     starting_window = position - window_size//2
     end_window = position + window_size//2
-    elements =  gp.get_ov_region(chr=chromosome,start=starting_window,stop = end_window, features=['gene'])
+    elements =  get_ov_region(chr=chromosome,start=starting_window,stop = end_window, features=['gene'])
     all_genes = []
     for i,r in elements[0].iterrows():
         if type_of_gene:
