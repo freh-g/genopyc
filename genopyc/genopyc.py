@@ -463,7 +463,8 @@ def get_phenotypes(chromosome,start,stop,feature_type='Genes',only_phenotypes=1)
     return annot.json()
 
 #Retrieves overlapping elements of a given region 
-def get_ov_region(snp= None, chr=None,start=None, stop=None, window=500, features=list, mode='region'):
+#Retrieves overlapping elements of a given region
+def get_ov_region(snp= None, chr=None,location=None, window=500, features=list, mode='region'):
     str_features=';'.join(['feature='+x for x in features])
 
     if mode == 'SNP':
@@ -472,27 +473,31 @@ def get_ov_region(snp= None, chr=None,start=None, stop=None, window=500, feature
         genomic_location = pos[0][2]
         start=genomic_location-window//2
         stop=genomic_location+window//2
-       
+
+    start=location-window//2
+    stop=location+window//2
     http="https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s"%(chr,start,stop,str_features)
     risposta=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
     lodfs = []
     list_of_features_retrieved = list(set([e['feature_type'] for e in risposta]))
     for x in list_of_features_retrieved:
         tmp_list = [dict(sorted(e.items())) for e in risposta if e['feature_type'] == x]
-        cols = tmp_list[0].keys()
-        data = []
+        #find the most number of keys dictionary
+        length_list = [len(e.items()) for e in tmp_list]
+        max_l = max(length_list)
+        index_max = length_list.index(max_l)
+        cols = tmp_list[index_max].keys()
+        e = pd.DataFrame(columns=cols)
         for i,f in enumerate(tmp_list):
-            data.append(f.values())
-        e = locals()[x + '_df'] = pd.DataFrame(data,columns=cols)
+            serie = pd.Series(data = f, index=list(f.keys()))
+            e.loc[i] = serie
 
         lodfs.append(e)
     return lodfs
 
 def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False):
     """ Retrieve the closeset upstream and downstrem genes given a point genomic location """
-    starting_window = position - window_size//2
-    end_window = position + window_size//2
-    elements =  get_ov_region(chr=chromosome,start=starting_window,stop = end_window, features=['gene'])
+    elements =  get_ov_region(chr=chromosome,location = position, features=['gene'],window=window_size)
     all_genes = []
     for i,r in elements[0].iterrows():
         if type_of_gene:
