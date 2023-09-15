@@ -23,7 +23,7 @@ import dash_cytoscape as cyto
 
 
 
-def get_associations(efotrait,verbose=False):
+def get_associations(efotrait,verbose=False, studyid = False):
     loe=[]
     """Retrieve snps associated to an EFO trait"""
     df=pd.DataFrame(columns=['variantid','p-value','risk_allele','RAF','beta','CI','mapped_gene'])
@@ -54,12 +54,23 @@ def get_associations(efotrait,verbose=False):
                 try:
                     study_link = element['_links']['study']['href']
 
-                    df.at[i,'study'] = study_link
+                    df.at[i,'study_url'] = study_link
                 except Exception as e:
                     
-                    df.at[i,'study'] = np.nan
-                    print(e, f"Couldn't retreive studyID for variant {variantid}")
-                     
+                    df.at[i,'study_url'] = np.nan
+                    print(e, f"Couldn't retreive studylink for variant {variantid}")
+                if studyid:
+                    try:
+                        jsonres = requests.get(study_link).json()
+                        studyid = jsonres['accessionId']
+                        df.at[i,'studyid'] = studyid
+                    
+                    except Exception as e:
+                    
+                        df.at[i,'studyid'] = np.nan
+                        print(e, f"Couldn't retreive studyID for variant {variantid}")
+                            
+                        
             except Exception as e:
                 print(f'error {e} for element {element}')
                 pass
