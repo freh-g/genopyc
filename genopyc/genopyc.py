@@ -473,9 +473,10 @@ def get_ov_region(snp= None, chr=None,location=None, window=500, features=list, 
         genomic_location = pos[0][2]
         start=genomic_location-window//2
         stop=genomic_location+window//2
+    else:
 
-    start=location-window//2
-    stop=location+window//2
+        start=location-window//2
+        stop=location+window//2
     http="https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s"%(chr,start,stop,str_features)
     risposta=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
     lodfs = []
