@@ -474,7 +474,6 @@ def get_phenotypes(chromosome,start,stop,feature_type='Genes',only_phenotypes=1)
     return annot.json()
 
 #Retrieves overlapping elements of a given region 
-#Retrieves overlapping elements of a given region
 def get_ov_region(snp= None, chr=None,location=None, window=500, features=list, mode='region'):
     str_features=';'.join(['feature='+x for x in features])
 
@@ -492,6 +491,9 @@ def get_ov_region(snp= None, chr=None,location=None, window=500, features=list, 
     risposta=requests.get(http,headers={ "Content-Type" : "application/json"}).json()
     lodfs = []
     list_of_features_retrieved = list(set([e['feature_type'] for e in risposta]))
+    for f in features:
+        if f not in list_of_features_retrieved:
+            print(f"Couldn't retrieve data for feature: {f}")
     for x in list_of_features_retrieved:
         tmp_list = [dict(sorted(e.items())) for e in risposta if e['feature_type'] == x]
         #find the most number of keys dictionary
