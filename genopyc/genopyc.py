@@ -509,9 +509,9 @@ def get_ov_region(snp= None, chr=None,location=None, window=500, features=list, 
         lodfs.append(e)
     return lodfs
 
-def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False):
+def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False,mode = 'start'):
     """ Retrieve the closeset upstream and downstrem genes given a point genomic location """
-    elements =  get_ov_region(chr=chromosome,location = position, features=['gene'],window=window_size)
+    elements =  gp.get_ov_region(chr=chromosome,location = position, features=['gene'],window=window_size)
     all_genes = []
     for i,r in elements[0].iterrows():
         if type_of_gene:
@@ -521,8 +521,6 @@ def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False
             
             all_genes.append((r['gene_id'],r['start'] - position,r['end'] - position))
 
-            
-    
     positive_r = []
     negative_r = []
     for r in all_genes:
@@ -531,17 +529,37 @@ def ClosestGenes(positionid,chromosome,position,window_size,type_of_gene = False
             positive_r.append(r)
         elif r[2] < 0:
             negative_r.append(r)
-    if len(negative_r)>0:
-        closest_downstream_gene = max(negative_r,key = lambda x: x[2])[0]
-    else:
-        print(f'no downstream genes in the selected window for variant {positionid}')
-        closest_downstream_gene = ''
+    
+    if mode == 'start':
+        """ In this case the distance will be calculated from the beginning of both upstream and downstream genes """
+        if len(negative_r)>0:
+            closest_downstream_gene = max(negative_r,key = lambda x: x[1])[0]
+        else:
+            print(f'no downstream genes in the selected window for variant {positionid}')
+            closest_downstream_gene = ''
 
-    if len(positive_r)>0:
-        closest_upstream_gene = min(positive_r,key = lambda x: x[2])[0]
-    else:
-        print(f'no upstream genes in the selected window for variant {positionid}')
-        closest_upstream_gene = ''
+        if len(positive_r)>0:
+            closest_upstream_gene = min(positive_r,key = lambda x: x[1])[0]
+        else:
+            print(f'no upstream genes in the selected window for variant {positionid}')
+            closest_upstream_gene = ''
+
+        
+        
+        
+    elif mode == 'absolute':
+        """ In this case the distance will be calculated from the beginning of the downstream and the end of the upstream """
+        if len(negative_r)>0:
+            closest_downstream_gene = max(negative_r,key = lambda x: x[2])[0]
+        else:
+            print(f'no downstream genes in the selected window for variant {positionid}')
+            closest_downstream_gene = ''
+
+        if len(positive_r)>0:
+            closest_upstream_gene = min(positive_r,key = lambda x: x[2])[0]
+        else:
+            print(f'no upstream genes in the selected window for variant {positionid}')
+            closest_upstream_gene = ''
 
     return (positionid,closest_upstream_gene,closest_downstream_gene)
 
@@ -732,6 +750,93 @@ def OT_L2G(ListofVariants,score=0.1,output='genes'):
     else:
         return list(set(sum([[value[0] for value in values if value[1]>score] for (key,values) in results.items()],[])))
     
+
+
+def make_eqtl_network(list_of_eqtls_df,tissue = None, gene = None, variant = None ,gene_symbol = False, tissue_name = False):
+    Graph = nx.Graph()
+    variant_nodes = []
+    gene_nodes = []
+    tissue_nodes = []
+    edgelist_variants_genes = []
+    edgelist_genes_tissues = []
+    if variant:
+        filtered_list = []
+        for dif in list_of_eqtls_df:
+            if dif.iloc[0].variantid in variant:
+                filtered_list.append(dif)
+        list_of_eqtls_df = filtered_list
+            
+    
+    for eq_df in list_of_eqtls_df:            
+#         Decide wether I want tissue name or id in the network (sometimes only the Id is present)
+        #         mapping the ids to symbols       
+        if gene_symbol:
+            gene_identifier_in_the_network = 'gene_symbol'
+            gene_ids = eq_df.gene_id.tolist()
+            gene_symbols = bp.gene_mapping_many(gene_ids,'ensembl','symbol')
+            eq_df[gene_identifier_in_the_network] = gene_symbols
+            eq_df.dropna(subset='gene_symbol',inplace = True)
+        else:
+            gene_identifier_in_the_network = 'gene_id'
+
+            
+
+        
+        
+        if tissue_name:
+            tissue_identifier_in_the_network = 'tissue_name'
+            eq_df.dropna(subset = 'tissue_name',inplace = True) # None Cannot be a node in the network
+        else:
+            tissue_identifier_in_the_network = 'tissue'
+
+            
+        
+#         apply the filters if needed
+        if tissue:
+            eq_df = eq_df[eq_df[tissue_identifier_in_the_network] == tissue]
+        if gene:
+            eq_df = eq_df[eq_df[gene_identifier_in_the_network] == gene]
+            
+
+            
+#         making the edges
+        
+        attributes = [{k:v,k1:v1} for (k,v,k1,v1) in list(zip(['beta' for beta in eq_df.beta.tolist()],
+                                                               [float(b) for b in eq_df.beta.tolist()],
+                                                                ['color' for beta in eq_df.beta.tolist()],
+                                                                ['green' if beta > 0 else 'red' for beta in eq_df.beta.tolist()]))]
+
+        annotations = [{'annotation':'is_expressed_in'} for r in eq_df[tissue_identifier_in_the_network].tolist()]
+      
+        edgelist_variants_genes.append(list(zip(eq_df.variantid.tolist(),eq_df[gene_identifier_in_the_network].tolist(),attributes)))
+        edgelist_genes_tissues.append(list(zip(eq_df[gene_identifier_in_the_network].tolist(),eq_df[tissue_identifier_in_the_network].tolist(),annotations)))
+        
+        
+#         making the nodes
+        variant_nodes.append(list(set(eq_df.variantid.tolist())))
+        gene_nodes.append((list(set(eq_df[gene_identifier_in_the_network].tolist()))))
+        tissue_nodes.append(((list(set(eq_df[tissue_identifier_in_the_network].tolist())))))
+        
+#         adding data to the network
+    
+    variant_nodes = list(sum(variant_nodes,[]))
+    gene_nodes = list(sum(gene_nodes,[]))
+    tissue_nodes = list(sum(tissue_nodes,[]))
+
+    
+    Graph.add_nodes_from(variant_nodes,tipo = 'variant')
+    Graph.add_nodes_from(gene_nodes, tipo = 'gene')
+    Graph.add_nodes_from(tissue_nodes, tipo = 'tissue')
+    
+#         merge the data in the edgelists
+    edgelist_genes_tissues = list(sum(edgelist_genes_tissues,[]))
+    edgelist_variants_genes =  list(sum(edgelist_variants_genes,[]))
+        
+    Graph.add_edges_from(edgelist_variants_genes)
+    Graph.add_edges_from(edgelist_genes_tissues)
+    return Graph
+
+            
 
 
 

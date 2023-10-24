@@ -13,7 +13,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='genopyc',
     packages=find_packages(),
-    version='2.0.9',
+    version='2.1.1',
     long_description=long_description,
     include_package_data=True,
     package_data={'genopyc': ['data/*']},
