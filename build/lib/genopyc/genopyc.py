@@ -1031,13 +1031,26 @@ def FuEnViz(ListOfGenes):
 
 #use this function#
 
-
-def plot_enrichment_analisys_network(list_of_genes,pvalue,colormap='cividis',edgecolor='red',mkcolor='grey',mkfsize=10000,layout='spring',
-                                     mklinewidths=2,alpha=1,figsize=(40,20),savefig=False,factor=1,k=10,
-                                     cbarfontsize=10,labelling=True,legend=False, legend_fontsize = 20, legend_titlefontsize = 25,
-                                     legend_location = (0.5,0.0), legend_col = 6, legend_labelspacing = 1.5, legend_title = '',
-                                     legend_columnspacing=1.5, legend_handlelength = 3, size_legend_nofelements=3, cbar_orientation= 'horizontal',
-                                     cbar_loc=(1, 0.5),**kwargs):
+def plot_enrichment_analisys_network(
+    
+    list_of_genes,pvalue,colormap='cividis',edgecolor='red',mkcolor='grey',mkfsize=10000,layout='spring',
+    mklinewidths=2,alpha=1,figsize=(40,20),savefig=False,factor=1,k=10,cbarfontsize=10,labelling=True,
+    legend=False, legend_fontsize = 20, legend_titlefontsize = 25, legend_location = (0.5,0.0), 
+    legend_col = 6, legend_labelspacing = 1.5, legend_title = '',legend_columnspacing=1.5, legend_handlelength = 3, 
+    size_legend_nofelements=3, cbar_orientation= 'horizontal',cbar_loc=(1, 0.5),
+    method_of_correction = 'bonferroni', no_evidences = False,no_iea = True, **kwargs
+                                    
+                                                                                            ):
+    
+    ## PERFORM ENRICHMENT ANALYSIS ##
+    gp = GProfiler(return_dataframe=True)
+    df=gp.profile(organism='hsapiens',
+                    query=list_of_genes,
+                    significance_threshold_method=method_of_correction,
+                    no_iea=no_iea,
+                    no_evidences=no_evidences)
+    assert df.shape[0]!=0,"Couldn't retrieve significantly enriched functions for the query list of genes"
+    
     def labelling_without_overlapping(x,y,list_of_annotations,ax,verbose=False,**kwargs):
     
         class Point:
@@ -1110,15 +1123,10 @@ def plot_enrichment_analisys_network(list_of_genes,pvalue,colormap='cividis',edg
                         break
 
 
-    gp = GProfiler(return_dataframe=True)
-    df=gp.profile(organism='hsapiens',
-                    query=list_of_genes,
-                    significance_threshold_method='bonferroni',
-                    no_iea=True,
-                    no_evidences=False)
+
     maxpv=max([-np.log10(p) for p in df.p_value.tolist()])
     for i, (s,v) in enumerate(zip(df.source.value_counts().index,df.source.value_counts())):
-        data=df[(df.source==s)&(-np.log10(df.p_value)>pvalue)].reset_index()
+        data=df[(df.source==s)&(df.p_value<pvalue)].reset_index()
         if data.shape[0]==0:
             continue
         else:
