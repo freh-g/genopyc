@@ -77,7 +77,7 @@ def get_associations(efotrait,verbose=False, studyid = False):
         df.fillna(np.nan, method = None,inplace = True)
         df['p-value'] = df['p-value'].map("{:.1e}".format)
     else:
-         print(f'ERROR: Bad Resquest: \n {resp}')
+         print(f'ERROR: Bad Resquest: \n {resp.text}')
     return df
 
 
@@ -1050,7 +1050,9 @@ def plot_enrichment_analisys_network(
                     no_iea=no_iea,
                     no_evidences=no_evidences)
     
-    assert df.shape[0]!=0,"Couldn't retrieve significantly enriched functions for the query list of genes"
+    if df.shape[0]==0:
+        print(f"Couldn't retrieve significantly enriched functions for the query list of genes:\n\n {list_of_genes}")
+        return
     
     def labelling_without_overlapping(x,y,list_of_annotations,ax,verbose=False,**kwargs):
     
