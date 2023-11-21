@@ -619,7 +619,59 @@ def get_eqtl_df(rsid,p_value=0.005,increase_index=False):
         return None
     return eqtl_df
 
+def get_gdas(querylist,username,password,mode):
+    
+    def chunks(lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
 
+    auth_params = {"email":username,"password":password}
+    api_host='https://www.disgenet.org/api'
+    req=requests.Session()
+    url = api_host+'/auth/'
+    response = req.post(url, data=auth_params)
+    token=response.json()['token']
+    req.headers.update({"Authorization": "Bearer %s" % token}) 
+       
+
+    
+    if mode == "genes":
+        
+        if len(querylist)>100:
+            list_dfs = []
+            chunks_query = list(chunks(querylist,100))
+            for c in chunks_query:
+                querylist = "%2C".join(c)
+                resp = req.get(api_host+'/gda/gene/{}'.format(querylist)).json()
+                df = pd.DataFrame(resp)
+                list_dfs.append(df)
+            
+            df = pd.concat(list_dfs)    
+                
+        else:
+            querylist = "%2C".join(querylist)
+            resp = req.get(api_host+'/gda/gene/{}'.format(querylist)).json()
+            df = pd.DataFrame(resp)
+        
+    elif mode == "variants":
+        
+        if len(querylist)>100:
+            list_dfs = []
+            chunks_query = list(chunks(querylist,100))
+            for c in chunks_query:
+                querylist = "%2C".join(c)
+                resp = req.get(api_host+'/vda/gene/{}'.format(querylist)).json()
+                df = pd.DataFrame(resp)
+                list_dfs.append(df)
+            
+            df = pd.concat(list_dfs)    
+                
+        else:
+            querylist = "%2C".join(querylist)
+            resp = req.get(api_host+'/vda/variant/{}'.format(querylist)).json()
+            df = pd.DataFrame(resp)
+    return df
 
 
 

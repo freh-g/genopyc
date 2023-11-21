@@ -22,4 +22,5 @@ from genopyc.genopyc import convert_variants
 from genopyc.genopyc import plot_enrichment_analisys_network
 from genopyc.genopyc import ClosestGenes
 from genopyc.genopyc import make_eqtl_network
+from genopyc.genopyc import get_gdas
 
