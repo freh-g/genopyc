@@ -29,7 +29,7 @@ def get_associations(efotrait,verbose=False, studyid = False):
     df=pd.DataFrame(columns=['variantid','p-value','risk_allele','RAF','beta','CI','mapped_gene'])
     http= 'https://www.ebi.ac.uk/gwas/rest/api/efoTraits/%s/associations' %(efotrait)
     if verbose:
-        print('querying associations... \n')
+        print(f"querying associations for {efotrait}... \n")
     resp=requests.get(http)
     if resp.ok:
         associ=resp.json()
@@ -40,7 +40,7 @@ def get_associations(efotrait,verbose=False, studyid = False):
                 variantid = ''.join(element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[0:1])
                 df.at[i,'variantid']= variantid
                 df.at[i,'risk_allele']=element['loci'][0]['strongestRiskAlleles'][0]['riskAlleleName'].split('-')[-1]
-                df.at[i,'mapped_gene']= ' '.join([str(elem) for elem in [e['geneName'] for e in element['loci'][0]['authorReportedGenes']]])
+                df.at[i,'mapped_gene']= ' '.join([str(elem).strip() for elem in [e['geneName'] for e in element['loci'][0]['authorReportedGenes']]])
                 df.at[i,'p-value']=float(element['pvalueMantissa'])*10**int(element['pvalueExponent'])
                 
                 try: 
@@ -77,7 +77,8 @@ def get_associations(efotrait,verbose=False, studyid = False):
         df.fillna(np.nan, method = None,inplace = True)
         df['p-value'] = df['p-value'].map("{:.1e}".format)
     else:
-         print(f'ERROR: Bad Resquest: \n {resp.text}')
+         print(f'ERROR: Bad Request: \n {resp.text}')
+         return None
     return df
 
 
@@ -176,7 +177,7 @@ def get_variants_position(idlist,chunked=False,chunksize=200):
 
         
 
-def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=False):
+def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=''):
     if input_type == 'hgvs':
         http="https://rest.ensembl.org/vep/human/hgvs"
         headers={ "Content-Type" : "application/json", "Accept" : "application/json"}
@@ -324,8 +325,9 @@ def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,al
         fig.suptitle("VEP RESULTS",fontsize=15)
         plt.tight_layout()
         if save_plot:
-            plt.savefig('Vep_results.png',dpi=350)
-        plt.show()
+            plt.savefig(save_plot,dpi=350)
+        else:
+            plt.show()
     return lodfs
     
 ## return single variant info ##
