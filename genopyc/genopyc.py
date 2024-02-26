@@ -38,15 +38,8 @@ tab_uni =  pd.read_csv(os.path.join(location, 'data', 'HUMAN_9606_idmapping.dat.
 def update_mapping_datasets():
     
     """
-    Updates mapping datasets required for gene mapping.
+    Updates mapping datasets required for gene mapping, Downloads NCBI and UniProt mapping files.
 
-    Downloads NCBI and UniProt mapping files, and creates UMLS dictionaries.
-
-    Args:
-        mrconso_path (str): Path to the MRCONSO file.
-
-    Raises:
-        FileNotFoundError: If the MRCONSO file is not found at the specified path.
     """
     
     location = os.path.dirname(os.path.realpath(__file__))
