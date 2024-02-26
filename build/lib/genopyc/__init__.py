@@ -23,4 +23,6 @@ from genopyc.genopyc import plot_enrichment_analisys_network
 from genopyc.genopyc import ClosestGenes
 from genopyc.genopyc import make_eqtl_network
 from genopyc.genopyc import get_gdas
+from genopyc.genopyc import gene_mapping_many
+from genopyc.genopyc import update_mapping_datasets
 

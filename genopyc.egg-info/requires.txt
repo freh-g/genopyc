@@ -1,9 +1,9 @@
 requests
+wget
 pandas
 numpy
 networkx
 igraph
-biomapy
 dash
 dash_cytoscape
 gprofiler_official
