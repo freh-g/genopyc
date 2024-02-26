@@ -35,7 +35,7 @@ ncbidb = pd.read_csv(os.path.join(location, 'data', 'Homo_sapiens.gene_info.gz')
 tab_uni =  pd.read_csv(os.path.join(location, 'data', 'HUMAN_9606_idmapping.dat.gz'),sep='\t',names=['uniprot','mapper','id'])
 
 
-def update_mapping_datasets(mrconso_path):
+def update_mapping_datasets():
     
     """
     Updates mapping datasets required for gene mapping.
@@ -57,13 +57,6 @@ def update_mapping_datasets(mrconso_path):
     wget.download(ncbidb,out)
     print('\nDownloading UniProt mapping file ')
     wget.download(tab_uni,out)
-    print('\n Creating umls dictionaries ')
-    if os.path.isfile(mrcons_path):
-    
-    else:
-        raise FileNotFoundError(f'no such file or directory {mrconso_path}')
-    
-
     print('\n!!DATABASES UPDATED!!')
 
 
