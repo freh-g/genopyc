@@ -1,5 +1,5 @@
 .. genopyc documentation master file, created by
-   sphinx-quickstart on Tue Feb 27 00:27:50 2024.
+   sphinx-quickstart on Tue Feb 27 10:30:27 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
