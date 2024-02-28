@@ -2,6 +2,7 @@ requests
 wget
 pandas
 numpy
+sphinx
 networkx
 igraph
 dash

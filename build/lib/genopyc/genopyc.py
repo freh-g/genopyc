@@ -220,26 +220,34 @@ def get_genes_position(idlist, chunked=False, chunksize=200):
             chunked_idlist.append(idlist[i:i + chunksize])
         results = []
         for i, chunk in enumerate(chunked_idlist):
-            response = requests.post(http, headers=headers, data="{" + '"ids" : {}'.format(str(chunk).replace("'", '"')) + "}").json()
-            ListOfTuples = []
-            for k, v in response.items():
-                try:
-                    ListOfTuples.append((k, int(v['seq_region_name']), v['start'], v['end']))
-                except:
-                    print(f"Couldn't retrieve position for gene {k}")
-                    continue
-            results.append(ListOfTuples)
-            print(f'Chunk {i + 1} done')
+            response = requests.post(http, headers=headers, data="{" + '"ids" : {}'.format(str(chunk).replace("'", '"')) + "}")
+            if response.ok:
+                response = response.json()
+                ListOfTuples = []
+                for k, v in response.items():
+                    try:
+                        ListOfTuples.append((k, int(v['seq_region_name']), v['start'], v['end']))
+                    except:
+                        print(f"Couldn't retrieve position for gene {k}")
+                        continue
+                results.append(ListOfTuples)
+                print(f'Chunk {i + 1} done')
+            else:
+                print(f'ERROR: Bad Request:\n{response.text}')
         return results
     else:
         ListOfTuples = []
         for gene in idlist:
-            response = requests.get(f"{http}/{gene}", headers=headers).json()
-            try:
-                ListOfTuples.append((gene, int(response['seq_region_name']), response['start'], response['end']))
-            except:
-                print(f"Couldn't retrieve position for gene {gene}")
-                continue
+            response = requests.get(f"{http}/{gene}", headers=headers)
+            if response.ok:
+                response = response.json()
+                try:
+                    ListOfTuples.append((gene, int(response['seq_region_name']), response['start'], response['end']))
+                except:
+                    print(f"Couldn't retrieve position for gene {gene}")
+                    continue
+            else:
+                print(f'ERROR: Bad Request:\n{response.text}')       
         return ListOfTuples
 
 def get_variants_position(idlist, chunked=False, chunksize=200):
@@ -271,7 +279,28 @@ def get_variants_position(idlist, chunked=False, chunksize=200):
         results = []
         for i, chunk in enumerate(chunked_idlist):
             response = requests.post(http, headers=headers,
-                                     data="{" + '"ids" : {}'.format(str(chunk).replace("'", '"')) + "}").json()
+                                     data="{" + '"ids" : {}'.format(str(chunk).replace("'", '"')) + "}")
+            if response.ok:
+                response = response.json()
+                for key, value in response.items():
+                    try:
+                        chr = value['mappings'][0]['location'].split(':')[0]
+                        pos = value['mappings'][0]['start']
+                        results.append((key, chr, pos))
+
+                    except:
+                        print(f"Couldn't Retrieve Position for variant {key}")
+                        pass
+                print(f"chunk {i} processed")
+            else:
+                print(f'ERROR: Bad Request:\n{response.text}')
+        return results
+    else:
+        response = requests.post(http, headers=headers,
+                                 data="{" + '"ids" : {}'.format(str(idlist).replace("'", '"')) + "}")
+        if response.ok:
+            response = response.json()
+            results = []
             for key, value in response.items():
                 try:
                     chr = value['mappings'][0]['location'].split(':')[0]
@@ -281,23 +310,9 @@ def get_variants_position(idlist, chunked=False, chunksize=200):
                 except:
                     print(f"Couldn't Retrieve Position for variant {key}")
                     pass
-            print(f"chunk {i} processed")
-        return results
-    else:
-        response = requests.post(http, headers=headers,
-                                 data="{" + '"ids" : {}'.format(str(idlist).replace("'", '"')) + "}").json()
-
-        results = []
-        for key, value in response.items():
-            try:
-                chr = value['mappings'][0]['location'].split(':')[0]
-                pos = value['mappings'][0]['start']
-                results.append((key, chr, pos))
-
-            except:
-                print(f"Couldn't Retrieve Position for variant {key}")
-                pass
-        return results
+            return results
+        else:
+            print(f'ERROR: Bad Request:\n{response.text}')
 
 
 def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=''):
@@ -332,10 +347,13 @@ def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,al
                 chunked_idlist.append(idlist[i:i+chunksize])
             results=[]
             for i,chunk in enumerate(chunked_idlist):
-                response = requests.post(http, headers=headers, 
-                                        data="{" + '"hgvs_notations" : {}'.format(str(chunk).replace("'",'"'))+"}")
-                results.append(response.json())
-                print('chunk %s processed' % (i))
+                if response.ok:
+                    response = requests.post(http, headers=headers, 
+                                            data="{" + '"hgvs_notations" : {}'.format(str(chunk).replace("'",'"'))+"}")
+                    results.append(response.json())
+                    print('chunk %s processed' % (i))
+                else:
+                    print(f'ERROR: Bad Request:\n{response.text}')
         
             req_results=sum(results,[])
         else:
@@ -354,8 +372,11 @@ def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,al
             for i,chunk in enumerate(chunked_idlist):
                 response = requests.post(http, headers=headers, 
                                         data="{" + '"ids" : {}'.format(str(chunk).replace("'",'"'))+"}")
-                results.append(response.json())
-                print('chunk %s processed' % (i))
+                if response.ok:
+                    results.append(response.json())
+                    print('chunk %s processed' % (i))
+                else:
+                    print(f'ERROR: Bad Request:\n{response.text}')
         
             req_results=sum(results,[])
         else:
@@ -505,14 +526,20 @@ def get_variants_info(idlist, chunked=False, chunksize=200):
         for i, chunk in enumerate(chunked_idlist):
             response = requests.post(http, headers=headers,
                                      data="{" + '"ids" : {}'.format(str(chunk).replace("'", '"')) + "}")
-            results.update(response.json())
-            print('chunk %s processed' % (i))
+            if response.ok:
+                results.update(response.json())
+                print('chunk %s processed' % (i))
+            else:
+                print(f'ERROR: Bad Request:\n{response.text}')
         return results
 
     else:
         response = requests.post(http, headers=headers,
                                  data="{" + '"ids" : {}'.format(str(idlist).replace("'", '"')) + "}")
-        return response.json()
+        if response.ok:
+            return response.json()
+        else:
+            print(f'ERROR: Bad Request:\n{response.text}')
 
         
 def get_ancestral_allele(variants):
@@ -578,8 +605,12 @@ def get_variants_in_LD(variant, r2, pop='EUR'):
     http = "https://rest.ensembl.org/ld/human/%s/1000GENOMES:phase_3:%s?r2=%s" % (variant, pop, r2)
     
     try:
-        variants = requests.get(http, headers={ "Content-Type": "application/json"}).json()
-        return [x['variation2'] for x in variants if float(x['r2']) >= r2]
+        resp = requests.get(http, headers={ "Content-Type": "application/json"})
+        if resp.ok:
+            variants = resp.json()
+            return [x['variation2'] for x in variants if float(x['r2']) >= r2]
+        else:
+            print(f'ERROR: Bad Request:\n{resp.text}')
     except Exception as e:
         print("Error:", e)
         return []
@@ -620,19 +651,23 @@ def get_ld_matrix(list_of_snps, token, pop='EUR', metric='r2'):
         'genome_build': 'grch38',
     }
 
-    response = requests.post('https://ldlink.nci.nih.gov/LDlinkRest/ldmatrix', headers=headers, params=params, json=json_data, verify=False).text
-    data_frame = pd.DataFrame([x.split('\t') for x in response.split('\n')])
-    new_header = data_frame.iloc[0]
-    data_frame = data_frame[1:]  # take the data less the header row
-    data_frame.columns = new_header  # set the header row as the df header
+    response = requests.post('https://ldlink.nci.nih.gov/LDlinkRest/ldmatrix', headers=headers, params=params, json=json_data, verify=False)
+    if response.ok:
+        response = response.text
+        data_frame = pd.DataFrame([x.split('\t') for x in response.split('\n')])
+        new_header = data_frame.iloc[0]
+        data_frame = data_frame[1:]  # take the data less the header row
+        data_frame.columns = new_header  # set the header row as the df header
 
-    new_rows = data_frame[data_frame.columns[0]]
-    data_frame = data_frame[data_frame.columns[1:]].set_index(new_rows)
+        new_rows = data_frame[data_frame.columns[0]]
+        data_frame = data_frame[data_frame.columns[1:]].set_index(new_rows)
 
-    data_frame.replace('NA', None, inplace=True)
-    data_frame = data_frame.astype(None)
+        data_frame.replace('NA', None, inplace=True)
+        data_frame = data_frame.astype(None)
 
-    return data_frame.fillna(0).iloc[:-1]
+        return data_frame.fillna(0).iloc[:-1]
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
 
 
 def pairwise_ld(ch, start, end, pop='EUR'):
@@ -655,20 +690,25 @@ def pairwise_ld(ch, start, end, pop='EUR'):
     """
 
     http = f"https://rest.ensembl.org/ld/human/region/{ch}:{str(start)}..{str(end)}/1000GENOMES:phase_3:{pop}"
-    response = requests.get(http, headers={"Content-Type": "application/json"}).json()
-    ld_mat = []
+    response = requests.get(http, headers={"Content-Type": "application/json"})
+    if response.ok:
+        response = response.json()
+        ld_mat = []
 
-    for i, element in enumerate(response):
-        try:
-            v1 = element['variation1']
-            v2 = element['variation2']
-            r2 = element['r2']
-            ld_mat.append((v1, v2, r2))
-        except Exception as r:
-            print(r, f'- Error for variant "{element}"')
-            ld_mat_df = pd.DataFrame(ld_mat, columns=['v1', 'v2', 'r2'])
+        for i, element in enumerate(response):
+            try:
+                v1 = element['variation1']
+                v2 = element['variation2']
+                r2 = element['r2']
+                ld_mat.append((v1, v2, r2))
+            except Exception as r:
+                print(r, f'- Error for variant "{element}"')
+                ld_mat_df = pd.DataFrame(ld_mat, columns=['v1', 'v2', 'r2'])
 
-    return ld_mat_df.sort_values(by='v1')
+        return ld_mat_df.sort_values(by='v1')
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
+        
 
 
 def get_summary_statistic(study):
@@ -687,8 +727,12 @@ def get_summary_statistic(study):
     """
 
     http = 'https://www.ebi.ac.uk/gwas/summary-statistics/api/studies/%s/associations' % (study)
-    ss = requests.get(http).json()
-    return ss
+    response = requests.get(http)
+    if response.ok:
+        response = response.json()
+        return response()
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
 
 
 def get_summary_statistic_list():
@@ -704,8 +748,12 @@ def get_summary_statistic_list():
     """
 
     http = 'https://www.ebi.ac.uk/gwas/summary-statistics/api/associations'
-    ss = requests.get(http).json()
-    return ss
+    response = requests.get(http)
+    if response.ok:
+        response = response.json()
+        return response()
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
 
 
 def get_phenotypes(chromosome, start, stop, feature_type='Genes', only_phenotypes=1):
@@ -766,26 +814,33 @@ def get_ov_region(snp=None, chr=None, location=None, window=500, features=list, 
         start = location - window // 2
         stop = location + window // 2
     http = "https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s" % (chr, start, stop, str_features)
-    risposta = requests.get(http, headers={"Content-Type": "application/json"}).json()
-    lodfs = []
-    list_of_features_retrieved = list(set([e['feature_type'] for e in risposta]))
-    for f in features:
-        if f not in list_of_features_retrieved:
-            print(f"Couldn't retrieve data for feature: {f}")
-    for x in list_of_features_retrieved:
-        tmp_list = [dict(sorted(e.items())) for e in risposta if e['feature_type'] == x]
-        # find the most number of keys dictionary
-        length_list = [len(e.items()) for e in tmp_list]
-        max_l = max(length_list)
-        index_max = length_list.index(max_l)
-        cols = tmp_list[index_max].keys()
-        e = pd.DataFrame(columns=cols)
-        for i, f in enumerate(tmp_list):
-            serie = pd.Series(data=f, index=list(f.keys()))
-            e.loc[i] = serie
+    risposta = requests.get(http, headers={"Content-Type": "application/json"})
+    if risposta.ok:
+        risposta = risposta.json()
+        lodfs = []
+        list_of_features_retrieved = list(set([e['feature_type'] for e in risposta]))
+        for f in features:
+            if f not in list_of_features_retrieved:
+                print(f"Couldn't retrieve data for feature: {f}")
+        for x in list_of_features_retrieved:
+            tmp_list = [dict(sorted(e.items())) for e in risposta if e['feature_type'] == x]
+            # find the most number of keys dictionary
+            length_list = [len(e.items()) for e in tmp_list]
+            max_l = max(length_list)
+            index_max = length_list.index(max_l)
+            cols = tmp_list[index_max].keys()
+            e = pd.DataFrame(columns=cols)
+            for i, f in enumerate(tmp_list):
+                serie = pd.Series(data=f, index=list(f.keys()))
+                e.loc[i] = serie
 
-        lodfs.append(e)
-    return lodfs
+            lodfs.append(e)
+        return lodfs
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
+
+        
+        
 
 
 def closest_genes(position_id, chromosome, position, window_size, type_of_gene=False, mode='start'):
@@ -922,8 +977,13 @@ def get_eqtl_variant(rsid):
     """
 
     url = 'http://www.ebi.ac.uk/eqtl/api/associations/%s' % (rsid)
-    risp = requests.get(url).json()
-    return risp
+    risp = requests.get(url)
+    if risp.ok:
+        risp = risp.json()
+        return risp
+    else:
+        print(f'ERROR: Bad Request:\n{risp.text}')
+
 
 
 def get_eqtl_df(rsid, p_value=0.005, increase_index=False):
@@ -951,30 +1011,34 @@ def get_eqtl_df(rsid, p_value=0.005, increase_index=False):
         ubdict = pickle.load(f)
     url = 'http://www.ebi.ac.uk/eqtl/api/associations/%s?size=1000' % (rsid)
     response = requests.get(url)
-    eqtls = response.json()
-    try:
-        eqtl_df = pd.DataFrame(columns=['variantid', 'p_value', 'log_pval', 'beta', 'alt', 'gene_id', 'tissue', 'study_id'])
-        for ass in eqtls['_embedded']['associations'].keys():
-            pval = eqtls['_embedded']['associations'][ass]['pvalue']
-            nlog_pval = -np.log10(pval)
-            beta = eqtls['_embedded']['associations'][ass]['beta']
-            alt = eqtls['_embedded']['associations'][ass]['alt']
-            geneid = eqtls['_embedded']['associations'][ass]['gene_id']
-            tissue = eqtls['_embedded']['associations'][ass]['tissue']
-            study = eqtls['_embedded']['associations'][ass]['study_id']
-            eqtl_df.loc[ass] = [rsid, pval, nlog_pval, beta, alt, geneid, tissue, study]
+    if response.ok:
+        eqtls = response.json()
+        try:
+            eqtl_df = pd.DataFrame(columns=['variantid', 'p_value', 'log_pval', 'beta', 'alt', 'gene_id', 'tissue', 'study_id'])
+            for ass in eqtls['_embedded']['associations'].keys():
+                pval = eqtls['_embedded']['associations'][ass]['pvalue']
+                nlog_pval = -np.log10(pval)
+                beta = eqtls['_embedded']['associations'][ass]['beta']
+                alt = eqtls['_embedded']['associations'][ass]['alt']
+                geneid = eqtls['_embedded']['associations'][ass]['gene_id']
+                tissue = eqtls['_embedded']['associations'][ass]['tissue']
+                study = eqtls['_embedded']['associations'][ass]['study_id']
+                eqtl_df.loc[ass] = [rsid, pval, nlog_pval, beta, alt, geneid, tissue, study]
 
-        eqtl_df = eqtl_df.loc[eqtl_df.p_value <= p_value]
-        eqtl_df.tissue = eqtl_df.tissue.apply(lambda x: x.replace('UBER_', 'UBERON_'))
-        eqtl_df['tissue_name'] = list(map(ubdict.get, eqtl_df.tissue.tolist()))
+            eqtl_df = eqtl_df.loc[eqtl_df.p_value <= p_value]
+            eqtl_df.tissue = eqtl_df.tissue.apply(lambda x: x.replace('UBER_', 'UBERON_'))
+            eqtl_df['tissue_name'] = list(map(ubdict.get, eqtl_df.tissue.tolist()))
 
-        eqtl_df = eqtl_df.reset_index(drop=True)
-        if increase_index:
-            eqtl_df.index += 1
-    except Exception as er:
-        print(er, eqtls)
-        return None
-    return eqtl_df
+            eqtl_df = eqtl_df.reset_index(drop=True)
+            if increase_index:
+                eqtl_df.index += 1
+        except Exception as er:
+            print(er, eqtls)
+            return None
+        return eqtl_df
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
+
 
 def get_gdas(query_list, username, password, mode):
     """
@@ -1070,53 +1134,58 @@ def get_genes(cr, location, window_size=10000, pop='EUR', features=['gene'], mod
     str_features = ';'.join(['feature=' + x for x in features])
     http = "https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s" % (cr, win_start, win_end, str_features)
     response = requests.get(http, headers={"Content-Type": "application/json"}).json()
-    if mode == 'complete_data':
-        return response
-    elif mode == 'all':
-        elements = {}
-        for el in response:
-            if el['biotype'] == 'protein_coding':
-                try:
-                    elements[el['external_name']] = int(el['start'] - start)
-                except:
-                    pass
-        return elements
-    elif mode == 'closest_forward':
-        elements = {}
-        for el in response:
-            if el['biotype'] == 'protein_coding':
-                try:
-                    elements[el['external_name']] = int(el['start'] - start)
-                except:
-                    pass
-        try:
-            return min([(k, v) for (k, v) in elements.items() if v > 0], key=lambda x: x[1])
-        except:
-            return 'no_genes_forward'
-    elif mode == 'closest_backward':
-        elements = {}
-        for el in response:
-            if el['biotype'] == 'protein_coding':
-                try:
-                    elements[el['external_name']] = int(el['start'] - start)
-                except:
-                    pass
-        try:
-            return max([(k, v) for (k, v) in elements.items() if v < 0], key=lambda x: x[1])
-        except:
-            return 'no_genes_backward'
-    elif mode == 'closest_overall':
-        elements = {}
-        for el in response:
-            if el['biotype'] == 'protein_coding':
-                try:
-                    elements[el['external_name']] = int(el['start'] - start)
-                except:
-                    pass
-        try:
-            return min([(k, np.absolute(v)) for (k, v) in elements.items()], key=lambda x: x[1])
-        except:
-            return 'no_genes'
+    if response.ok:
+        response = response.json()
+        if mode == 'complete_data':
+            return response
+        elif mode == 'all':
+            elements = {}
+            for el in response:
+                if el['biotype'] == 'protein_coding':
+                    try:
+                        elements[el['external_name']] = int(el['start'] - start)
+                    except:
+                        pass
+            return elements
+        elif mode == 'closest_forward':
+            elements = {}
+            for el in response:
+                if el['biotype'] == 'protein_coding':
+                    try:
+                        elements[el['external_name']] = int(el['start'] - start)
+                    except:
+                        pass
+            try:
+                return min([(k, v) for (k, v) in elements.items() if v > 0], key=lambda x: x[1])
+            except:
+                return 'no_genes_forward'
+        elif mode == 'closest_backward':
+            elements = {}
+            for el in response:
+                if el['biotype'] == 'protein_coding':
+                    try:
+                        elements[el['external_name']] = int(el['start'] - start)
+                    except:
+                        pass
+            try:
+                return max([(k, v) for (k, v) in elements.items() if v < 0], key=lambda x: x[1])
+            except:
+                return 'no_genes_backward'
+        elif mode == 'closest_overall':
+            elements = {}
+            for el in response:
+                if el['biotype'] == 'protein_coding':
+                    try:
+                        elements[el['external_name']] = int(el['start'] - start)
+                    except:
+                        pass
+            try:
+                return min([(k, np.absolute(v)) for (k, v) in elements.items()], key=lambda x: x[1])
+            except:
+                return 'no_genes'
+    else:
+        print(f'ERROR: Bad Request:\n{response.text}')
+
 
 
 def convert_variants(list_of_variants, source='variantid', target='rsid'):
@@ -1258,7 +1327,7 @@ def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, ge
         if gene_symbol:
             gene_identifier_in_the_network = 'gene_symbol'
             gene_ids = eq_df.gene_id.tolist()
-            gene_symbols = bp.gene_mapping_many(gene_ids, 'ensembl', 'symbol')
+            gene_symbols = gene_mapping_many(gene_ids, 'ensembl', 'symbol')
             eq_df[gene_identifier_in_the_network] = gene_symbols
             eq_df.dropna(subset='gene_symbol', inplace=True)
         else:
