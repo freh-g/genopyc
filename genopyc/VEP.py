@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import requests
-
+from collections import Counter
 
 def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=''):
     

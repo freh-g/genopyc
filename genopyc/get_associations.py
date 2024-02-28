@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-
+import numpy as np
 
 def get_associations(efotrait, verbose=False, studyid=False):
     """
