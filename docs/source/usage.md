@@ -1,11 +1,21 @@
 # Usage
 
-## Installation
-
-To install genopyc run:
+## Get variants associated with a trait
 
 ```
-pip install genopyc
+get_associations(efotrait, verbose=False, studyid=False)
 
 ```
+Retrieve SNPs associated with an EFO trait.
 
+Parameters:
+- efotrait (str): EFO id of the trait for which variants are to be retrieved (ex. EFO_0004994)
+- verbose (bool, optional): If True, the function returns the steps of variant retrieval
+- studyid (bool, optional): If True, the Id of the GWAS where the association was found is retrieved
+
+Returns:
+- Pandas DataFrame: Variants associated with the trait
+
+## Investigate genomic locations
+
+genopyc allows the user of investigating 
