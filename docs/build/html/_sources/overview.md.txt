@@ -1,0 +1,3 @@
+# Overview
+
+Genopyc is a python toolbox for the investigation of complex traits. It allows to gather SNPs associated to the disease, investigate genomics locations, run Open target Locus-to-gene pipeline and performing enrichment analysis on the obtained genes as well as mapping between IDs.

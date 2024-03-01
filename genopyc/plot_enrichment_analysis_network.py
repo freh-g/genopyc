@@ -51,7 +51,7 @@ def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', 
     - **kwargs: Additional keyword arguments.
 
     Returns:
-    - None
+    - Pandas DataFrame of the enriched functions
     """
     gp = GProfiler(return_dataframe=True)
     df = gp.profile(organism='hsapiens',
@@ -227,3 +227,4 @@ def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', 
                 plt.savefig(str(s) + 'enrichment_analysis.jpeg', dpi=300, bbox_inches='tight')
 
             plt.show()
+    return df

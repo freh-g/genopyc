@@ -1,6 +1,6 @@
 # Installation
 
-To install genopyc run:
+Genopyc can be installed via pip by running:
 
 ```
 pip install genopyc

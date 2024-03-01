@@ -4,12 +4,12 @@ tab_uni =  pd.read_csv(os.path.join(location, 'data', 'HUMAN_9606_idmapping.dat.
 def gene_mapping_many(query_list,source,target):
     
     """
-    Maps gene identifiers from one namespace to another.
+    Maps gene identifiers from one Id to another.
 
     Args:
         query_list (list): List of gene identifiers to be mapped.
-        source (str): Source namespace of the gene identifiers.
-        target (str): Target namespace to which the gene identifiers will be mapped.
+        source (str): Source Id of the gene identifiers.
+        target (str): Target Id to which the gene identifiers will be mapped.
 
     Returns:
         list: List of gene identifiers mapped to the target namespace.
@@ -17,8 +17,6 @@ def gene_mapping_many(query_list,source,target):
     Raises:
         AssertionError: If input query_list contains non-integer values when source or target is 'entrez'.
 
-    Note:
-        The function relies on external data sources 'ncbidb' and 'tab_uni'.
     """
     
     
