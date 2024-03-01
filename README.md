@@ -10,4 +10,4 @@ Genopyc is a Python  library for investigating the effect of genetic variants on
 To learn more on an application of genopyc library to investigate variants related to Intervertebral Disc Degeneration refer to the [tutorial](https://github.com/freh-g/genopyc/blob/main/tutorials/Genopyc_tutorial_notebook.ipynb).
 
 
-A [documentation]() is available at readthedocs.com
+The [documentation](https://genopyc.readthedocs.io/en/latest/) is available at readthedocs.
