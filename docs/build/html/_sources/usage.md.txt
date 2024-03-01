@@ -452,7 +452,10 @@ Parameters:
 Returns:
 - Pandas DataFrame of the enriched functions
 
-**The returned plot is a network where the nodes are the function.\a new functionality implemented in genopyc is the interactive visualization of the function enrichment. In this network the nodes are proteins and an edge exists between the proteins if there is an interaction. A dropdown menu listing all the enriched functions is utlized in order to highlight the proteins associated to that specific pathway.\A video showing an example is available in the [GitHub repository](https://github.com/freh-g/genopyc/blob/main/function_enrichment_visualization_tool_tutorial_supplementary.mp4)**
+**The returned plot is a network where the nodes are the function.**
+\
+**A new functionality implemented in genopyc is the interactive visualization of the function enrichment. In this network the nodes are proteins and an edge exists between the proteins if there is an interaction. A dropdown menu listing all the enriched functions is utlized in order to highlight the proteins associated to that specific pathway.**\
+**A video showing an example is available in the [GitHub repository](https://github.com/freh-g/genopyc/blob/main/function_enrichment_visualization_tool_tutorial_supplementary.mp4)**
 
 
 
