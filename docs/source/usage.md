@@ -95,16 +95,16 @@ Returns:
 - list of tuples: A list of tuples containing the Ensembl gene ID, chromosome number, start position, and end position.
 
 ```
-get_genes(cr, location, window_size=10000, pop='EUR', features=['gene'], mode='all')
+get_genes(ch, location, window_size=10000, pop='EUR', features=['gene'], mode='all')
 ```
 Retrieve genes in a window centered around a genomic position and compute the distance between the position and all genes.
 
 Parameters:
-- cr (str): Chromosome identifier.
+- ch (str): Chromosome identifier.
 - location (int): Genomic position around which the window is centered.
 - window_size (int, optional): Size of the window in base pairs. Default is 10,000.
 - pop (str, optional): Population for which to retrieve gene data. Default is 'EUR' (European).
-- features (list, optional): List of features to include in the retrieval. Default is ['gene'].
+- features (list, optional): List of features to include in the retrieval. Default is ['gene']. Possible values are [band, gene, transcript, cds, exon, repeat, simple, misc, variation, somatic_variation, structural_variation, somatic_structural_variation, constrained, regulatory, motif, other_regulatory, array_probe, man].
 - mode (str, optional): Retrieval mode. Options: 'all' (returns all genes and their distances), 
 'complete_data' (returns complete response from the API), 'closest_forward' (returns the closest gene 
 located forward of the position), 'closest_backward' (returns the closest gene located backward of 
@@ -121,17 +121,17 @@ Returns:
 
 
 ```
-get_ov_region(snp=None, chr=None, location=None, window=500, features=list, mode='region')
+get_ov_region(snp=None, ch=None, location=None, window=500, features=['genes'], mode='region')
 ```
 Retrieve overlap regions for a specified SNP or genomic location.
 
 Parameters:
-- snp (str, optional): The variant ID (SNP) for which overlap regions are requested. Default is None.
-- chr (str or int, optional): Chromosome name or identifier. Required if mode is 'SNP'.
+- snp (str, optional): The variant ID (SNP) for which overlap regions are requested. Default is None, if an snp is provided as an input also the mode have to be on 'SNP'.
+- ch (str or int, optional): Chromosome name or identifier. Required if mode is 'region'.
 - location (int, optional): Genomic location (start position) for which overlap regions are requested. Required if mode is 'region'.
 - window (int, optional): Window size to extend the genomic region around the SNP or location. Default is 500.
-- features (list, optional): A list of genomic feature types to include in the overlap regions. Default is an empty list.
-- mode (str, optional): Mode of operation, either 'SNP' or 'region'. Default is 'region'.
+- features (list, optional): List of features to include in the retrieval. Default is ['gene']. Possible values are [band, gene, transcript, cds, exon, repeat, simple, misc, variation, somatic_variation, structural_variation, somatic_structural_variation, constrained, regulatory, motif, other_regulatory, array_probe, man].
+- mode (str, optional): Mode of operation, either 'SNP' or 'region'. Default is 'region' i.e. the function is working with genomic coordinates. If SNP as input we need to feed mode = 'SNP'
 
 Returns:
 - list of pandas DataFrames: A list of pandas DataFrames containing overlap regions for each specified genomic feature type.
@@ -160,17 +160,17 @@ This function queries the Ensembl REST API to retrieve the genomic sequence for 
 It returns the genomic sequence as a string.
 
 ```
-closest_genes(position_id, chromosome, position, window_size, type_of_gene=False, mode='start')
+get_closest_genes(ch, position, window_size, type_of_gene=False, mode='start',position_id)
 ```
 Find the closest upstream and downstream genes to a given genomic position.
 
 Parameters:
-- position_id (str): Identifier for the genomic position.
-- chromosome (str or int): Chromosome name or identifier.
+- ch (str or int): Chromosome name or identifier.
 - position (int): Genomic position for which closest genes are to be found.
 - window_size (int): Window size to extend the genomic region around the position.
 - type_of_gene (str, optional): Biotype of genes to consider. Default is False (include all genes).
-- mode (str, optional): Mode of calculating distances, either 'start' or 'absolute'. Default is 'start'.
+- position_id (str, optional): User-defined position id.
+- mode (str, optional): Mode of calculating distances, currently only distance calculated from start of upstream and downstream gene is implemented'.
     start:  In this case the distance will be calculated from the beginning of both upstream and downstream genes 
     absolute: Upstream distance is calcuated as distance (base pairs) to the end and downstream as distance to the start of the gene
 
@@ -178,6 +178,7 @@ Returns:
 - tuple: A tuple containing the position ID, the closest upstream gene ID, and the closest downstream gene ID.
 
 Note:
+This function utilizes the `get_ov_region` function to retrieve genes within the specified window around the genomic position.
 It calculates distances from the specified position to the start (or end) of genes and finds the closest upstream and downstream genes.
 
 # Linkage Disequilibrium
@@ -361,10 +362,10 @@ Note:
 **An utility of genopyc library is the capability of mapping gene Ids between different vocabularies such as ensembl, entrez, Uniprot and gene symbol. It can be easily done with:**
 
 ```
-gene_mapping_many(query_list,source,target)
+geneId_maping(query_list,source,target)
 ```
 
-Maps gene identifiers from one Id to another.
+Maps gene identifiers from one Id to another. This function handles ensembleId, genesymbol, UniprotID and EntrezID.
 
 Args:
     query_list (list): List of gene identifiers to be mapped.
@@ -386,7 +387,7 @@ update_mapping_datasets()
 **Moreover, genopyc handles variant Id mapping through the function:**
 
 ```
-convert_variants(list_of_variants, source='variantid', target='rsid')
+variantId_mapping(list_of_variants, source='variantid', target='rsid')
 ```
 
 Convert variants from one identifier type to another using the Open Targets Genetics API.

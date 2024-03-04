@@ -2,16 +2,16 @@ import requests
 import pandas as pd
 import get_variants_positions
 
-def get_ov_region(snp=None, chr=None, location=None, window=500, features=list, mode='region'):
+def get_ov_region(snp=None, ch=None, location=None, window=500, features=['genes'], mode='region'):
     """
     Retrieve overlap regions for a specified SNP or genomic location.
 
     Parameters:
     - snp (str, optional): The variant ID (SNP) for which overlap regions are requested. Default is None.
-    - chr (str or int, optional): Chromosome name or identifier. Required if mode is 'SNP'.
+    - ch (str or int, optional): Chromosome name or identifier. Required if mode is 'SNP'.
     - location (int, optional): Genomic location (start position) for which overlap regions are requested. Required if mode is 'region'.
     - window (int, optional): Window size to extend the genomic region around the SNP or location. Default is 500.
-    - features (list, optional): A list of genomic feature types to include in the overlap regions. Default is an empty list.
+    - features (list, optional): List of features to include in the retrieval. Default is ['gene']. Possible values are [band, gene, transcript, cds, exon, repeat, simple, misc, variation, somatic_variation, structural_variation, somatic_structural_variation, constrained, regulatory, motif, other_regulatory, array_probe, man].
     - mode (str, optional): Mode of operation, either 'SNP' or 'region'. Default is 'region'.
 
     Returns:
@@ -26,7 +26,7 @@ def get_ov_region(snp=None, chr=None, location=None, window=500, features=list, 
 
     if mode == 'SNP':
         pos = get_variants_position(snp)
-        chr = int(pos[0][1])
+        ch = int(pos[0][1])
         genomic_location = pos[0][2]
         start = genomic_location - window // 2
         stop = genomic_location + window // 2
@@ -34,7 +34,7 @@ def get_ov_region(snp=None, chr=None, location=None, window=500, features=list, 
 
         start = location - window // 2
         stop = location + window // 2
-    http = "https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s" % (chr, start, stop, str_features)
+    http = "https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s" % (ch, start, stop, str_features)
     risposta = requests.get(http, headers={"Content-Type": "application/json"})
     if risposta.ok:
         risposta = risposta.json()
@@ -58,4 +58,4 @@ def get_ov_region(snp=None, chr=None, location=None, window=500, features=list, 
             lodfs.append(e)
         return lodfs
     else:
-        print(f'ERROR: Bad Request:\n{response.text}')
+        print(f'ERROR: Bad Request:\n{risposta.text}')

@@ -18,11 +18,11 @@ from .genopyc import pairwise_ld
 from .genopyc import OT_L2G
 from .genopyc import function_enrichment_visualization
 from .genopyc import get_genes
-from .genopyc import convert_variants
+from .genopyc import variantId_mapping
 from .genopyc import plot_enrichment_analysis_network
-from .genopyc import closest_genes
+from .genopyc import get_closest_genes
 from .genopyc import make_eqtl_network
 from .genopyc import get_gdas
-from .genopyc import gene_mapping_many
+from .genopyc import geneId_mapping
 from .genopyc import update_mapping_datasets
 
