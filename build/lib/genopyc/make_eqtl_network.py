@@ -1,5 +1,5 @@
 import networkx as nx
-import gene_mapping_many
+import geneId_mapping
 
 def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, gene_symbol=False, tissue_name=False):
     """

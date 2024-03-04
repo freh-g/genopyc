@@ -1,6 +1,6 @@
 import requests
 
-def get_sequence(chromosome, start, stop):
+def get_sequence(ch, start, stop):
     """
     Retrieve the genomic sequence for a given genomic region.
 
@@ -16,6 +16,11 @@ def get_sequence(chromosome, start, stop):
     This function queries the Ensembl REST API to retrieve the genomic sequence for the specified genomic region.
     It returns the genomic sequence as a string.
     """
-    http = "https://rest.ensembl.org/sequence/region/human/%s:%s..%s?" % (chromosome, start, stop)
-    risposta = requests.get(http, headers={"Content-Type": "application/json"}).json()
-    return risposta['seq']
+    http = "https://rest.ensembl.org/sequence/region/human/%s:%s..%s?" % (ch, start, stop)
+    risposta = requests.get(http, headers={"Content-Type": "application/json"})
+    if risposta.ok:
+        risposta = risposta.json()
+        return risposta['seq']
+    else:
+        print(f'ERROR: Bad Request:\n{risposta.text}')
+        return None

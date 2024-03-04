@@ -39,18 +39,21 @@ def get_ld_matrix(list_of_snps, token, pop='EUR', metric='r2'):
     response = requests.post('https://ldlink.nci.nih.gov/LDlinkRest/ldmatrix', headers=headers, params=params, json=json_data, verify=False)
     if response.ok:
         response = response.text
-        data_frame = pd.DataFrame([x.split('\t') for x in response.split('\n')])
-        new_header = data_frame.iloc[0]
-        data_frame = data_frame[1:]  # take the data less the header row
-        data_frame.columns = new_header  # set the header row as the df header
+        if "error" in response:
+            print("error : Input variant list does not contain any valid RS numbers or coordinates.")
+            return None
+        else:
+            data_frame = pd.DataFrame([x.split('\t') for x in response.split('\n')])
+            new_header = data_frame.iloc[0]
+            data_frame = data_frame[1:]  # take the data less the header row
+            data_frame.columns = new_header  # set the header row as the df header
 
-        new_rows = data_frame[data_frame.columns[0]]
-        data_frame = data_frame[data_frame.columns[1:]].set_index(new_rows)
+            new_rows = data_frame[data_frame.columns[0]]
+            data_frame = data_frame[data_frame.columns[1:]].set_index(new_rows)
 
-        data_frame.replace('NA', None, inplace=True)
-        data_frame = data_frame.astype(None)
+            data_frame.replace('NA', None, inplace=True)
+            data_frame = data_frame.astype(None)
 
-        return data_frame.fillna(0).iloc[:-1]
+            return data_frame.fillna(0).iloc[:-1]
     else:
         print(f'ERROR: Bad Request:\n{response.text}')
-

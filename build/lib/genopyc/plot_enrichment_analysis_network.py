@@ -4,15 +4,19 @@ from matplotlib.legend import Legend
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import matplotlib
+from gprofiler import GProfiler
 
 
 
-def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', edgecolor='red', mkcolor='grey', mkfsize=10000, layout='spring',
-                                     mklinewidths=2, alpha=1, figsize=(40, 20), savefig=False, factor=1, k=10, cbarfontsize=10, labelling=True,
-                                     legend=False, legend_fontsize=20, legend_titlefontsize=25, legend_location=(0.5, 0.0), legend_col=6,
-                                     legend_labelspacing=1.5, legend_title='', legend_columnspacing=1.5, legend_handlelength=3,
-                                     size_legend_nofelements=3, cbar_orientation='horizontal', cbar_loc=(1, 0.5),
-                                     method_of_correction='bonferroni', no_evidences=False, no_iea=True, **kwargs):
+def plot_enrichment_analysis_network(
+    
+                            list_of_genes, pvalue, colormap='cividis', edgecolor='red', mkcolor='grey', mkfsize=2500, layout='spring',
+                            mklinewidths=2, alpha=1, figsize=(20, 15), savefig=False, factor=1, k=100, cbarfontsize=20, labelling=True,
+                            legend=False, legend_fontsize=20, legend_titlefontsize=25, legend_location=(1.5,0.8), legend_col=1,
+                            legend_labelspacing=3, legend_title='Number of Genes', legend_columnspacing=3, legend_handlelength=3,
+                            size_legend_nofelements=3, cbar_orientation='horizontal', cbar_loc=(0,0),
+                            method_of_correction='bonferroni', no_evidences=False, no_iea=True, **kwargs):
     """
     Perform enrichment analysis and visualize the results as a network where nodes are the functions, size of the nodes is proportional to the number of genes involved in the specific function,
     and edges exist between nodes if the functions share genes. The thickness of the edge is proportional to the number of genes involved in the specific function.
@@ -51,7 +55,7 @@ def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', 
     - **kwargs: Additional keyword arguments.
 
     Returns:
-    - None
+    - Pandas DataFrame of the enriched functions
     """
     gp = GProfiler(return_dataframe=True)
     df = gp.profile(organism='hsapiens',
@@ -63,7 +67,6 @@ def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', 
     if df.shape[0] == 0:
         print(f"Couldn't retrieve significantly enriched functions for the query list of genes:\n\n {list_of_genes}")
         return
-
     def labelling_without_overlapping(x, y, list_of_annotations, ax, verbose=False, **kwargs):
         class Point:
             def __init__(self, x, y):
@@ -143,20 +146,23 @@ def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', 
                 ig_subgraph = ig.Graph.from_networkx(nxen)
                 pos_ = dict(zip([v['_nx_name'] for v in ig_subgraph.vs], [coord for coord in ig_subgraph.layout_auto()]))
 
+            
+            
             connections = [edge[2]['weight'] for edge in nxen.edges(data=True)]
             if len(connections) != 0:
                 norm_connections = [(x - min(connections)) / (max(connections) - min(connections)) for x in connections]
             else:
-                connections = norm_connections
+                norm_connections = connections
 
             markers = [node[1]['size'] for node in nxen.nodes(data=True)]
-            if len(markers) != 0:
+            if len(markers) > 1:
                 norm_markers = [(x - min(markers)) / (max(markers) - min(markers)) for x in markers]
             else:
-                markers = norm_markers
+                norm_markers = markers
 
             norm_markers = np.clip(norm_markers, 0.3, 1)
             
+             
             fig, ax = plt.subplots(figsize=figsize)
             xses, yses, lab, colors = [], [], [], []
             for node in nxen.nodes(data=True):
@@ -227,3 +233,4 @@ def plot_enrichment_analysis_network(list_of_genes, pvalue, colormap='cividis', 
                 plt.savefig(str(s) + 'enrichment_analysis.jpeg', dpi=300, bbox_inches='tight')
 
             plt.show()
+    return df

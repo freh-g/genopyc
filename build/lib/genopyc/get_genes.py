@@ -1,11 +1,11 @@
 import requests
 
-def get_genes(cr, location, window_size=10000, pop='EUR', features=['gene'], mode='all'):
+def get_genes(ch, location, window_size=10000, pop='EUR', features=['gene'], mode='all'):
     """
     Retrieve genes in a window centered around a genomic position and compute the distance between the position and all genes.
 
     Parameters:
-    - cr (str): Chromosome identifier.
+    - ch (str): Chromosome identifier.
     - location (int): Genomic position around which the window is centered.
     - window_size (int, optional): Size of the window in base pairs. Default is 10,000.
     - pop (str, optional): Population for which to retrieve gene data. Default is 'EUR' (European).
@@ -27,8 +27,8 @@ def get_genes(cr, location, window_size=10000, pop='EUR', features=['gene'], mod
     win_start = location - window_size // 2
     win_end = location + window_size // 2
     str_features = ';'.join(['feature=' + x for x in features])
-    http = "https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s" % (cr, win_start, win_end, str_features)
-    response = requests.get(http, headers={"Content-Type": "application/json"}).json()
+    http = "https://rest.ensembl.org/overlap/region/human/%s:%s-%s?%s" % (ch, win_start, win_end, str_features)
+    response = requests.get(http, headers={"Content-Type": "application/json"})
     if response.ok:
         response = response.json()
         if mode == 'complete_data':

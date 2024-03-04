@@ -23,18 +23,21 @@ def pairwise_ld(ch, start, end, pop='EUR'):
     response = requests.get(http, headers={"Content-Type": "application/json"})
     if response.ok:
         response = response.json()
-        ld_mat = []
+        if response != []:
+            ld_mat = []
 
-        for i, element in enumerate(response):
-            try:
-                v1 = element['variation1']
-                v2 = element['variation2']
-                r2 = element['r2']
-                ld_mat.append((v1, v2, r2))
-            except Exception as r:
-                print(r, f'- Error for variant "{element}"')
-                ld_mat_df = pd.DataFrame(ld_mat, columns=['v1', 'v2', 'r2'])
+            for i, element in enumerate(response):
+                try:
+                    v1 = element['variation1']
+                    v2 = element['variation2']
+                    r2 = element['r2']
+                    ld_mat.append((v1, v2, r2))
+                except Exception as r:
+                    print(r, f'- Error for variant "{element}"')
+                    ld_mat_df = pd.DataFrame(ld_mat, columns=['v1', 'v2', 'r2'])
 
-        return ld_mat_df.sort_values(by='v1')
+            return ld_mat_df.sort_values(by='v1')
+        else:
+            print(f"No data relative to the genomic location {ch}:{start}-{end}")
     else:
         print(f'ERROR: Bad Request:\n{response.text}')
