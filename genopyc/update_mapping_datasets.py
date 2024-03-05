@@ -1,4 +1,5 @@
 import wget
+import os
 
 
 def update_mapping_datasets():

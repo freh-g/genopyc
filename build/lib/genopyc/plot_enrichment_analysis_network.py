@@ -15,8 +15,8 @@ def plot_enrichment_analysis_network(
                             mklinewidths=2, alpha=1, figsize=(20, 15), savefig=False, factor=1, k=100, cbarfontsize=20, labelling=True,
                             legend=False, legend_fontsize=20, legend_titlefontsize=25, legend_location=(1.5,0.8), legend_col=1,
                             legend_labelspacing=3, legend_title='Number of Genes', legend_columnspacing=3, legend_handlelength=3,
-                            size_legend_nofelements=3, cbar_orientation='horizontal', cbar_loc=(0,0),
-                            method_of_correction='bonferroni', no_evidences=False, no_iea=True, **kwargs):
+                            size_legend_nofelements=3, cbar_orientation='horizontal', cbar_loc=(0,0), fontsize_ann=20,
+                            method_of_correction='bonferroni', no_evidences=False, no_iea=True):
     """
     Perform enrichment analysis and visualize the results as a network where nodes are the functions, size of the nodes is proportional to the number of genes involved in the specific function,
     and edges exist between nodes if the functions share genes. The thickness of the edge is proportional to the number of genes involved in the specific function.
@@ -52,7 +52,7 @@ def plot_enrichment_analysis_network(
     - method_of_correction (str): Method of multiple testing correction (default: 'bonferroni').
     - no_evidences (bool): Exclude electronic annotations (default: False).
     - no_iea (bool): Exclude Inferred from Electronic Annotation (IEA) evidence (default: True).
-    - **kwargs: Additional keyword arguments.
+    - fontsize_ann: fontsize of the annotations on the nodes of the network
 
     Returns:
     - Pandas DataFrame of the enriched functions
@@ -67,7 +67,7 @@ def plot_enrichment_analysis_network(
     if df.shape[0] == 0:
         print(f"Couldn't retrieve significantly enriched functions for the query list of genes:\n\n {list_of_genes}")
         return
-    def labelling_without_overlapping(x, y, list_of_annotations, ax, verbose=False, **kwargs):
+    def labelling_without_overlapping(x, y, list_of_annotations, ax, fontsize ,verbose=False):
         class Point:
             def __init__(self, x, y):
                 self.x = x
@@ -94,7 +94,7 @@ def plot_enrichment_analysis_network(
             annotation = ax.annotate(str(list_of_annotations[i]),
                                      xy=(x[i], y[i]),
                                      xytext=(x_coords, y_coords),
-                                     **kwargs)
+                                     size = fontsize)
 
             ax.figure.canvas.draw()
             bbox = matplotlib.text.Text.get_window_extent(annotation)
@@ -177,7 +177,7 @@ def plot_enrichment_analysis_network(
                                linewidths=mklinewidths, clip_on=False, zorder=1)
 
             if labelling:
-                labelling_without_overlapping(xses, yses, number_lab, ax, **kwargs)
+                labelling_without_overlapping(xses, yses, number_lab, ax, fontsize = fontsize_ann)
 
             for indx, edge in enumerate(nxen.edges(data=True)):
                 if edge[2]['weight'] > 0:

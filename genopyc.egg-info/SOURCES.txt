@@ -13,7 +13,7 @@ genopyc/get_eqtl_df.py
 genopyc/get_eqtl_variant.py
 genopyc/get_gdas.py
 genopyc/get_genes.py
-genopyc/get_genes_positions.py
+genopyc/get_genes_position.py
 genopyc/get_ld_matrix.py
 genopyc/get_ov_region.py
 genopyc/get_phenotypes.py
@@ -22,7 +22,7 @@ genopyc/get_summary_statistic.py
 genopyc/get_summary_statistic_list.py
 genopyc/get_variants_in_LD.py
 genopyc/get_variants_info.py
-genopyc/get_variants_positions.py
+genopyc/get_variants_position.py
 genopyc/grch_liftover.py
 genopyc/make_eqtl_network.py
 genopyc/pairwise_ld.py

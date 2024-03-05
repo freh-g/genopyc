@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-import get_variants_positions
+from genopyc.get_variants_position import *
 
 def get_ov_region(snp=None, ch=None, location=None, window=500, features=['genes'], mode='region'):
     """

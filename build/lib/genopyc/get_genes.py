@@ -1,5 +1,7 @@
 import requests
 
+import requests
+
 def get_genes(ch, location, window_size=10000, pop='EUR', features=['gene'], mode='all'):
     """
     Retrieve genes in a window centered around a genomic position and compute the distance between the position and all genes.
@@ -36,32 +38,29 @@ def get_genes(ch, location, window_size=10000, pop='EUR', features=['gene'], mod
         elif mode == 'all':
             elements = {}
             for el in response:
-                if el['biotype'] == 'protein_coding':
-                    try:
-                        elements[el['external_name']] = int(el['start'] - start)
-                    except:
-                        pass
+                try:
+                    elements[el['external_name']] = int(el['start'] - location)
+                except:
+                    pass
             return elements
         elif mode == 'closest_forward':
             elements = {}
             for el in response:
-                if el['biotype'] == 'protein_coding':
-                    try:
-                        elements[el['external_name']] = int(el['start'] - start)
-                    except:
-                        pass
+                try:
+                    elements[el['external_name']] = int(el['start'] - location)
+                except:
+                    pass
             try:
                 return min([(k, v) for (k, v) in elements.items() if v > 0], key=lambda x: x[1])
             except:
                 return 'no_genes_forward'
         elif mode == 'closest_backward':
             elements = {}
-            for el in response:
-                if el['biotype'] == 'protein_coding':
-                    try:
-                        elements[el['external_name']] = int(el['start'] - start)
-                    except:
-                        pass
+            if el['biotype'] == 'protein_coding':
+                try:
+                    elements[el['external_name']] = int(el['start'] - location)
+                except:
+                    pass
             try:
                 return max([(k, v) for (k, v) in elements.items() if v < 0], key=lambda x: x[1])
             except:
@@ -69,11 +68,10 @@ def get_genes(ch, location, window_size=10000, pop='EUR', features=['gene'], mod
         elif mode == 'closest_overall':
             elements = {}
             for el in response:
-                if el['biotype'] == 'protein_coding':
-                    try:
-                        elements[el['external_name']] = int(el['start'] - start)
-                    except:
-                        pass
+                try:
+                    elements[el['external_name']] = int(el['start'] - location)
+                except:
+                    pass
             try:
                 return min([(k, np.absolute(v)) for (k, v) in elements.items()], key=lambda x: x[1])
             except:

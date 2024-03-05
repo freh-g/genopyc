@@ -1,5 +1,5 @@
 import networkx as nx
-import geneId_mapping
+from genopyc.geneId_mapping import *
 
 def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, gene_symbol=False, tissue_name=False):
     """
@@ -44,7 +44,7 @@ def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, ge
         if gene_symbol:
             gene_identifier_in_the_network = 'gene_symbol'
             gene_ids = eq_df.gene_id.tolist()
-            gene_symbols = bp.gene_mapping_many(gene_ids, 'ensembl', 'symbol')
+            gene_symbols = geneneId_mapping(gene_ids, 'ensembl', 'symbol')
             eq_df[gene_identifier_in_the_network] = gene_symbols
             eq_df.dropna(subset='gene_symbol', inplace=True)
         else:

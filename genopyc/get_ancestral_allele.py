@@ -1,5 +1,4 @@
-import get_variants_info
-
+from genopyc.get_variants_info import *
 
 def get_ancestral_allele(variants):
     """
