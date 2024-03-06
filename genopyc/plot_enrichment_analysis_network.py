@@ -204,14 +204,14 @@ def plot_enrichment_analysis_network(
 
                 Legend.update_default_handler_map({str: TextHandlerB()})
 
-                first_legend = fig.legend(number_lab, lab, bbox_to_anchor=(1, 0.5), loc="lower left",fontsize=legend_fontsize,)
+                first_legend = fig.legend(number_lab, lab, bbox_to_anchor=legend_location, loc="lower left",fontsize=legend_fontsize,)
                 plt.gca().add_artist(first_legend)
 
                 handles, _ = nodez.legend_elements(prop="sizes", alpha=0.6, num=size_legend_nofelements)
                 _, label_markers = nodez_for_legend.legend_elements(prop="sizes", alpha=0.6)
 
                 legend = fig.legend(handles, label_markers, fontsize=legend_fontsize, loc="upper left",
-                                    bbox_to_anchor=(1, 0.5), ncol=legend_col, labelspacing=legend_labelspacing,
+                                    bbox_to_anchor=legend_location, ncol=legend_col, labelspacing=legend_labelspacing,
                                     columnspacing=legend_columnspacing, handlelength=legend_handlelength, frameon=False)
 
                 legend.set_title(legend_title, prop={'size': legend_titlefontsize})

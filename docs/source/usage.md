@@ -58,9 +58,9 @@ It requires authentication using a username and password provided by the user.
 The mode parameter specifies whether the query is for genes or variants.
 
 
-# Investigate genomic locations
+# Investigate genomic positions
 
-**Genopyc includes many functions to investigate genomic locations, specifically, given a list of variants the user can retrieve the genomic locations:**
+**Genopyc includes many functions to investigate genomic positions, specifically, given a list of variants the user can retrieve the genomic positions:**
 
 ```
 get_variants_position(idlist, chunked=False, chunksize=200)
@@ -95,13 +95,13 @@ Returns:
 - list of tuples: A list of tuples containing the Ensembl gene ID, chromosome number, start position, and end position.
 
 ```
-get_genes(ch, location, window_size=10000, pop='EUR', features=['gene'], mode='all')
+get_genes(ch, position, window_size=10000, pop='EUR', features=['gene'], mode='all')
 ```
 Retrieve genes in a window centered around a genomic position and compute the distance between the position and all genes.
 
 Parameters:
 - ch (str): Chromosome identifier.
-- location (int): Genomic position around which the window is centered.
+- position (int): Genomic position around which the window is centered.
 - window_size (int, optional): Size of the window in base pairs. Default is 10,000.
 - pop (str, optional): Population for which to retrieve gene data. Default is 'EUR' (European).
 - features (list, optional): List of features to include in the retrieval. Default is ['gene']. Possible values are [band, gene, transcript, cds, exon, repeat, simple, misc, variation, somatic_variation, structural_variation, somatic_structural_variation, constrained, regulatory, motif, other_regulatory, array_probe, man].
@@ -121,15 +121,15 @@ Returns:
 
 
 ```
-get_ov_region(snp=None, ch=None, location=None, window=500, features=['genes'], mode='region')
+get_ov_region(snp=None, ch=None, position=None, window=500, features=['genes'], mode='region')
 ```
-Retrieve overlap regions for a specified SNP or genomic location.
+Retrieve overlap regions for a specified SNP or genomic position.
 
 Parameters:
 - snp (str, optional): The variant ID (SNP) for which overlap regions are requested. Default is None, if an snp is provided as an input also the mode have to be on 'SNP'.
 - ch (str or int, optional): Chromosome name or identifier. Required if mode is 'region'.
-- location (int, optional): Genomic location (start position) for which overlap regions are requested. Required if mode is 'region'.
-- window (int, optional): Window size to extend the genomic region around the SNP or location. Default is 500.
+- position (int, optional): Genomic position (start position) for which overlap regions are requested. Required if mode is 'region'.
+- window (int, optional): Window size to extend the genomic region around the SNP or position. Default is 500.
 - features (list, optional): List of features to include in the retrieval. Default is ['gene']. Possible values are [band, gene, transcript, cds, exon, repeat, simple, misc, variation, somatic_variation, structural_variation, somatic_structural_variation, constrained, regulatory, motif, other_regulatory, array_probe, man].
 - mode (str, optional): Mode of operation, either 'SNP' or 'region'. Default is 'region' i.e. the function is working with genomic coordinates. If SNP as input we need to feed mode = 'SNP'
 
@@ -137,7 +137,7 @@ Returns:
 - list of pandas DataFrames: A list of pandas DataFrames containing overlap regions for each specified genomic feature type.
 
 Note:
-This function queries the Ensembl REST API to retrieve overlap regions for the specified SNP or genomic location.
+This function queries the Ensembl REST API to retrieve overlap regions for the specified SNP or genomic position.
 It returns a list of pandas DataFrames, where each DataFrame contains overlap regions for a specific genomic feature type.
     
 
@@ -436,7 +436,7 @@ Parameters:
 - legend (bool): Whether to show legend (default: False).
 - legend_fontsize (int): Font size of legend (default: 20).
 - legend_titlefontsize (int): Font size of legend title (default: 25).
-- legend_location (tuple): Location of legend (default: (0.5,0.0)).
+- legend_location (tuple): position of legend (default: (0.5,0.0)).
 - legend_col (int): Number of columns in legend (default: 6).
 - legend_labelspacing (float): Spacing between legend labels (default: 1.5).
 - legend_title (str): Title of legend (default: '').
@@ -444,7 +444,7 @@ Parameters:
 - legend_handlelength (int): Length of legend handles (default: 3).
 - size_legend_nofelements (int): Number of elements in size legend (default: 3).
 - cbar_orientation (str): Orientation of color bar (default: 'horizontal').
-- cbar_loc (tuple): Location of color bar (default: (1, 0.5)).
+- cbar_loc (tuple): position of color bar (default: (1, 0.5)).
 - method_of_correction (str): Method of multiple testing correction (default: 'bonferroni').
 - no_evidences (bool): Exclude electronic annotations (default: False).
 - no_iea (bool): Exclude Inferred from Electronic Annotation (IEA) evidence (default: True).
