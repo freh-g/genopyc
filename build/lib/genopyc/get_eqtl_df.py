@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 import os
 import pickle
+import numpy as np
 
 def get_eqtl_df(rsid, p_value=0.005, increase_index=False):
     """

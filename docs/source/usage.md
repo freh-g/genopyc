@@ -362,7 +362,7 @@ Note:
 **An utility of genopyc library is the capability of mapping gene Ids between different vocabularies such as ensembl, entrez, Uniprot and gene symbol. It can be easily done with:**
 
 ```
-geneId_maping(query_list,source,target)
+geneId_maping(query_list,source,target, return_not_mapped = False)
 ```
 
 Maps gene identifiers from one Id to another. This function handles ensembleId, genesymbol, UniprotID and EntrezID.
@@ -371,6 +371,7 @@ Args:
     query_list (list): List of gene identifiers to be mapped.
     source (str): Source Id of the gene identifiers.
     target (str): Target Id to which the gene identifiers will be mapped.
+    return_not_mapped (bool, default: False): print the genes that weren't mapped
 
 Returns:
     list: List of gene identifiers mapped to the target namespace.
@@ -455,9 +456,14 @@ Returns:
 
 **The returned plot is a network where the nodes are the function.**
 \
-**A new functionality implemented in genopyc is the interactive visualization of the function enrichment. In this network the nodes are proteins and an edge exists between the proteins if there is an interaction. A dropdown menu listing all the enriched functions is utlized in order to highlight the proteins associated to that specific pathway.**\
-**A video showing an example is available in the [GitHub repository](https://github.com/freh-g/genopyc/blob/main/function_enrichment_visualization_tool_tutorial_supplementary.mp4)**
+**A new functionality implemented in genopyc is the interactive visualization of the function enrichment through the function**
+```
+interactive_function_enrichment_visualization
+```
 
+
+**In this network the nodes are proteins and an edge exists between the proteins if there is an interaction. A dropdown menu listing all the enriched functions is utlized in order to highlight the proteins associated to that specific pathway.**\
+**A video showing an example is available in the [GitHub repository](https://github.com/freh-g/genopyc/blob/main/function_enrichment_visualization_tool_tutorial_supplementary.mp4)**
 
 
 **REFERENCES**
