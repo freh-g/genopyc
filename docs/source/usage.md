@@ -458,7 +458,7 @@ Returns:
 \
 **A new functionality implemented in genopyc is the interactive visualization of the function enrichment through the function**
 ```
-interactive_function_enrichment_visualization
+FuEnViz
 ```
 
 

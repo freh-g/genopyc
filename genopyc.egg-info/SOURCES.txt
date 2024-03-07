@@ -1,6 +1,7 @@
 LICENSE.txt
 README.md
 setup.py
+genopyc/FuEnViz.py
 genopyc/OT_L2G.py
 genopyc/VEP.py
 genopyc/__init__.py
@@ -23,7 +24,6 @@ genopyc/get_variants_in_LD.py
 genopyc/get_variants_info.py
 genopyc/get_variants_position.py
 genopyc/grch_liftover.py
-genopyc/interactive_function_enrichment_visualization.py
 genopyc/make_eqtl_network.py
 genopyc/pairwise_ld.py
 genopyc/plot_enrichment_analysis_network.py

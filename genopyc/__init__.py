@@ -17,7 +17,7 @@ from genopyc.get_eqtl_df import *
 from genopyc.get_ld_matrix import *
 from genopyc.pairwise_ld import *
 from genopyc.OT_L2G import *
-from genopyc.interactive_function_enrichment_visualization import *
+from genopyc.FuEnViz import *
 from genopyc.get_genes import *
 from genopyc.plot_enrichment_analysis_network import *
 from genopyc.get_closest_genes import *
