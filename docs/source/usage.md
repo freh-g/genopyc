@@ -315,7 +315,7 @@ Note:
 **Genopyc integrates many tools for investigating how the variants could act on genes. One already mentioned way for example is the gathering of eQTL data. To complement the analysis genopyc integrates also Ensembl variant effect predictor (VEP) <sup>2</sup>**:
 
 ```
-VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot='')
+variant_effect_predictor(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot='')
 ```
 Perform Variant Effect Prediction (VEP) using the Ensembl Variant Effect Predictor for a list of variant IDs.
 

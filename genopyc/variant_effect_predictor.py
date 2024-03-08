@@ -4,7 +4,7 @@ import requests
 from collections import Counter
 import ast
 
-def VEP(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=''):
+def variant_effect_predictor(idlist,input_type = 'rsid', chunked=False,chunksize=200,verbose=False,all_data=False,plot = False,save_plot=''):
     
     """
     Perform Variant Effect Prediction (VEP) using the Ensembl Variant Effect Predictor for a list of variant IDs.

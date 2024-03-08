@@ -2,7 +2,7 @@ from genopyc.get_associations import *
 from genopyc.variantId_mapping import *
 from genopyc.get_variants_position import *
 from genopyc.get_genes_position import *
-from genopyc.VEP import *
+from genopyc.variant_effect_predictor import *
 from genopyc.get_ancestral_allele import *
 from genopyc.get_variants_in_LD import *
 from genopyc.get_summary_statistic import *
