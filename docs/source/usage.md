@@ -351,17 +351,17 @@ geneId_maping(query_list,source,target, return_not_mapped = False)
 
 Maps gene identifiers from one Id to another. This function handles ensembleId, genesymbol, UniprotID and EntrezID.
 
-Args:
-    query_list (list): List of gene identifiers to be mapped.
-    source (str): Source Id of the gene identifiers. Possible values are: ensembl, symbol, entrez, uniprot
-    target (str): Target Id to which the gene identifiers will be mapped. Possible values are: ensembl, symbol, entrez, uniprot
-    return_not_mapped (bool, default: False): print the genes that weren't mapped
+Parameters:
+- query_list (list): List of gene identifiers to be mapped.
+- source (str): Source Id of the gene identifiers. Possible values are: ensembl, symbol, entrez, uniprot
+- target (str): Target Id to which the gene identifiers will be mapped. Possible values are: ensembl, symbol, entrez, uniprot
+- return_not_mapped (bool, default: False): print the genes that weren't mapped
 
 Returns:
-    list: List of gene identifiers mapped to the target namespace.
+- list: List of gene identifiers mapped to the target namespace.
 
 Raises:
-    AssertionError: If input query_list contains non-integer values when source or target is 'entrez'.
+- AssertionError: If input query_list contains non-integer values when source or target is 'entrez'.
 
 **To do this genopyc relies on ncbi id mapping and and Uniprot gene info files. The datasets can be updated to the most recent version by running:**
 
@@ -379,8 +379,8 @@ Convert variants from one identifier type to another using the Open Targets Gene
 
 Parameters:
 - list_of_variants (list): List of variant identifiers to be converted.
-- source (str, optional): Identifier type of the variants in list_of_variants. Default is 'variantid'.
-- target (str, optional): Identifier type to which the variants will be converted. Default is 'rsid'.
+- source (str, optional): Identifier type of the variants in list_of_variants. Default is 'variantid'. Possible values are: 'rsid' and 'variantid'
+- target (str, optional): Identifier type to which the variants will be converted. Default is 'rsid'. Possible values are: 'rsid' and 'variantid'
 
 Returns:
 - list: List of converted variant identifiers.
