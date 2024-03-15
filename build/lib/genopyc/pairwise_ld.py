@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 
 def pairwise_ld(ch, start, end, pop='EUR'):
     """
@@ -34,7 +35,7 @@ def pairwise_ld(ch, start, end, pop='EUR'):
                     ld_mat.append((v1, v2, r2))
                 except Exception as r:
                     print(r, f'- Error for variant "{element}"')
-                    ld_mat_df = pd.DataFrame(ld_mat, columns=['v1', 'v2', 'r2'])
+                ld_mat_df = pd.DataFrame(ld_mat, columns=['v1', 'v2', 'r2'])
 
             return ld_mat_df.sort_values(by='v1')
         else:

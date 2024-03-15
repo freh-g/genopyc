@@ -3,14 +3,13 @@ README.md
 setup.py
 genopyc/FuEnViz.py
 genopyc/OT_L2G.py
-genopyc/VEP.py
 genopyc/__init__.py
+genopyc/__version__.py
 genopyc/geneId_mapping.py
 genopyc/get_ancestral_allele.py
 genopyc/get_associations.py
 genopyc/get_closest_genes.py
 genopyc/get_eqtl_df.py
-genopyc/get_eqtl_variant.py
 genopyc/get_gdas.py
 genopyc/get_genes.py
 genopyc/get_genes_position.py
@@ -29,6 +28,7 @@ genopyc/pairwise_ld.py
 genopyc/plot_enrichment_analysis_network.py
 genopyc/update_mapping_datasets.py
 genopyc/variantId_mapping.py
+genopyc/variant_effect_predictor.py
 genopyc.egg-info/PKG-INFO
 genopyc.egg-info/SOURCES.txt
 genopyc.egg-info/dependency_links.txt

@@ -1,3 +1,4 @@
+from genopyc.__version__ import __version__
 from genopyc.get_associations import *
 from genopyc.variantId_mapping import *
 from genopyc.get_variants_position import *
@@ -11,7 +12,6 @@ from genopyc.get_phenotypes import *
 from genopyc.get_ov_region import *
 from genopyc.get_sequence import *
 from genopyc.grch_liftover import *
-from genopyc.get_eqtl_variant import *
 from genopyc.get_variants_info import *
 from genopyc.get_eqtl_df import *
 from genopyc.get_ld_matrix import *

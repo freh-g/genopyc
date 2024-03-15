@@ -121,7 +121,7 @@ Returns:
 
 
 ```
-get_ov_region(snp=None, ch=None, position=None, window=500, features=['genes'], mode='region')
+get_ov_region(snp=None, ch=None, position=None, window=500, features=['gene'], mode='region')
 ```
 Retrieve overlap regions for a specified SNP or genomic position.
 
@@ -142,13 +142,13 @@ It returns a list of pandas DataFrames, where each DataFrame contains overlap re
     
 
 ```
-get_sequence(chromosome, start, stop)
+get_sequence(ch, start, stop)
 ```
 
 Retrieve the genomic sequence for a given genomic region.
 
 Parameters:
-- chromosome (str or int): Chromosome name or identifier.
+- ch (str or int): Chromosome name or identifier.
 - start (int): Start position of the genomic region.
 - stop (int): End position of the genomic region.
 
@@ -266,22 +266,6 @@ Note:
 This function queries the EBI eQTL Catalog API to retrieve eQTL associations for the specified variant.
 It returns a pandas DataFrame containing eQTL association information, including variant ID, p-value, beta value, 
 target gene ID, tissue, study ID, and tissue name. It optionally filters associations based on the provided p-value threshold.
-  
-```
- get_eqtl_variant(rsid)
-```
-
-Retrieve eQTL (expression quantitative trait loci) associations for a given variant.
-
-Parameters:
-- rsid (str): The variant ID (e.g., rsID) for which eQTL associations are requested.
-
-Returns:
-- dict: A dictionary containing eQTL associations for the specified variant.
-
-Note:
-This function queries the EBI eQTL Catalog API to retrieve eQTL associations for the specified variant.
-It returns a dictionary containing eQTL association information, including target genes and other relevant data, for the specified variant.
 
 **A functionality to express associations between variants and genes as network in a specific tissue is available in genopyc with the function**
 
@@ -369,8 +353,8 @@ Maps gene identifiers from one Id to another. This function handles ensembleId, 
 
 Args:
     query_list (list): List of gene identifiers to be mapped.
-    source (str): Source Id of the gene identifiers.
-    target (str): Target Id to which the gene identifiers will be mapped.
+    source (str): Source Id of the gene identifiers. Possible values are: ensembl, symbol, entrez, uniprot
+    target (str): Target Id to which the gene identifiers will be mapped. Possible values are: ensembl, symbol, entrez, uniprot
     return_not_mapped (bool, default: False): print the genes that weren't mapped
 
 Returns:

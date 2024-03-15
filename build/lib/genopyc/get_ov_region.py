@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from genopyc.get_variants_position import *
 
-def get_ov_region(snp=None, ch=None, position=None, window=500, features=['genes'], mode='region'):
+def get_ov_region(snp=None, ch=None, position=None, window=500, features=['gene'], mode='region'):
     """
     Retrieve overlap regions for a specified SNP or genomic position.
 

@@ -33,9 +33,12 @@ def OT_L2G(list_of_variants, score=0.1, output='genes'):
         r = requests.post(OT_url, json={'query': query % (variant)})
         r = r.json()
         ResultsForVariant = []
-        for data in r['data']['genesForVariant']:
-            ResultsForVariant.append((data['gene']['id'], data['overallScore']))
-        results[variant] = ResultsForVariant
+        try:
+            for data in r['data']['genesForVariant']:
+                ResultsForVariant.append((data['gene']['id'], data['overallScore']))
+            results[variant] = ResultsForVariant
+        except Exception as e:
+            print(e,f"Couldn't retrieve data for variant {variant}")
     if output == 'all':
         raw_data = {key: sorted(value, key=lambda x: x[1], reverse=True) for key, value in results.items()}
         cols = ['id', 'gene', 'score']

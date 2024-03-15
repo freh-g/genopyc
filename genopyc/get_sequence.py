@@ -5,7 +5,7 @@ def get_sequence(ch, start, stop):
     Retrieve the genomic sequence for a given genomic region.
 
     Parameters:
-    - chromosome (str or int): Chromosome name or identifier.
+    - ch (str or int): Chromosome name or identifier.
     - start (int): Start position of the genomic region.
     - stop (int): End position of the genomic region.
 

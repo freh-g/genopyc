@@ -21,7 +21,7 @@ def get_closest_genes(ch, position, window_size, type_of_gene=False, mode='start
     This function utilizes the `get_ov_region` function to retrieve genes within the specified window around the genomic position.
     It calculates distances from the specified position to the start (or end) of genes and finds the closest upstream and downstream genes.
     """
-    elements = get_ov_region(ch=ch, location=position, features=['gene'], window=window_size)
+    elements = get_ov_region(ch=ch, position=position, features=['gene'], window=window_size)
     all_genes = []
     for i, r in elements[0].iterrows():
         if type_of_gene:
