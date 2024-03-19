@@ -16,7 +16,7 @@ from genopyc.get_variants_info import *
 from genopyc.get_eqtl_df import *
 from genopyc.get_ld_matrix import *
 from genopyc.pairwise_ld import *
-from genopyc.OT_L2G import *
+from genopyc.locus_to_gene import *
 from genopyc.FuEnViz import *
 from genopyc.get_genes import *
 from genopyc.plot_enrichment_analysis_network import *

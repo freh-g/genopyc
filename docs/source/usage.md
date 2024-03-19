@@ -323,7 +323,7 @@ This function requires internet connectivity to access the Ensembl REST API.
 **Locus to gene (L2G) pipeline <sup>3</sup> from Open Target Genetics:**
 
 ```
-OT_L2G(list_of_variants, score=0.1, output='genes')
+locus_to_gene(list_of_variants, score=0.1, output='genes')
 ```
 Retrieve genes associated with variants from the Open Targets Genetics API.
 
