@@ -27,7 +27,7 @@ def get_eqtl_df(rsid, p_value=0.005, increase_index=False):
     out = os.path.join(location, 'data')
     with open(out + '/uberon_dict.pickle', 'rb') as f:
         ubdict = pickle.load(f)
-    url = 'http://www.ebi.ac.uk/eqtl/api/associations/%s?size=1000' % (rsid)
+    url = 'http://www.ebi.ac.uk/eqtl/api/v1/associations/%s?size=1000' % (rsid)
     response = requests.get(url)
     if response.ok:
         eqtls = response.json()
