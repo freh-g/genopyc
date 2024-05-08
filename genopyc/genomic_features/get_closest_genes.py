@@ -1,4 +1,4 @@
-from genopyc.genomics_features.get_ov_region import *
+from genopyc.genomic_features.get_ov_region import *
 
 def get_closest_genes(ch, position, window_size, type_of_gene=False, mode='start',position_id=''):
     """

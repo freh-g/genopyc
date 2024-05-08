@@ -9,6 +9,7 @@ def update_mapping_datasets():
     """
     
     location = os.path.dirname(os.path.realpath(__file__))
+    location = location.rstrip('/utils')
     out = os.path.join(location, 'data')
     files = os.listdir(out)
     for f in files:

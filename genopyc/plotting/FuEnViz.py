@@ -33,6 +33,7 @@ def FuEnViz(list_of_genes):
     
     def parse_interactome():
         location = os.path.dirname(os.path.realpath(__file__))
+        location = location.rstrip('/plotting')
         interactome = pd.read_csv(os.path.join(location, 'data', 'hippie_interactome.sif'), header=None, sep=' ', usecols=[0, 2])
         interactome.columns = ['source', 'target']
         interactome.source = geneId_mapping(interactome.source.astype(int).tolist(), 'entrez', 'symbol')

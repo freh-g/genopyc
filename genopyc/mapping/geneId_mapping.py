@@ -4,6 +4,7 @@ import re
 
 
 location = os.path.dirname(os.path.realpath(__file__))
+location = location.rstrip('/mapping')
 ncbidb = pd.read_csv(os.path.join(location, 'data', 'Homo_sapiens.gene_info.gz'),sep='\t')
 tab_uni =  pd.read_csv(os.path.join(location, 'data', 'HUMAN_9606_idmapping.dat.gz'),sep='\t',names=['uniprot','mapper','id'])
 
