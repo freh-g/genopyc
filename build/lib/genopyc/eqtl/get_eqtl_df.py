@@ -24,6 +24,7 @@ def get_eqtl_df(rsid, p_value=0.005, increase_index=False):
     """
 
     location = os.path.dirname(os.path.realpath(__file__))
+    location = location.rstrip('/eqtl')
     out = os.path.join(location, 'data')
     with open(out + '/uberon_dict.pickle', 'rb') as f:
         ubdict = pickle.load(f)
