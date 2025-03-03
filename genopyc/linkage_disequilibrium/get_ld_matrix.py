@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 
-def get_ld_matrix(list_of_snps, token, pop='EUR', metric='r2'):
+def get_ld_matrix(list_of_snps, token, pop='EUR', metric='r2',genome_build = 'grch38_high_coverage'):
     """
     Get the linkage disequilibrium (LD) matrix for a list of SNPs.
 
@@ -33,7 +33,7 @@ def get_ld_matrix(list_of_snps, token, pop='EUR', metric='r2'):
         'snps': snp_string,
         'pop': pop,
         'r2_d': metric,
-        'genome_build': 'grch38',
+        'genome_build': genome_build,
     }
 
     response = requests.post('https://ldlink.nci.nih.gov/LDlinkRest/ldmatrix', headers=headers, params=params, json=json_data, verify=False)
