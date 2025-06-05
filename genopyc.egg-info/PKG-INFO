@@ -1,10 +1,20 @@
 Metadata-Version: 2.1
 Name: genopyc
-Version: 2.7.3
+Version: 2.7.5
 Author: Francesco Gualdi
 License: GPL
 Description-Content-Type: text/markdown
 License-File: LICENSE.txt
+Requires-Dist: requests
+Requires-Dist: wget
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: sphinx
+Requires-Dist: networkx
+Requires-Dist: igraph
+Requires-Dist: dash
+Requires-Dist: dash_cytoscape
+Requires-Dist: gprofiler_official
 
 <p align="center">
  <img src="https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true" width="60%" height="60%">
