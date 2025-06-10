@@ -144,7 +144,7 @@ def geneId_mapping(query_list,source,target,return_not_mapped = False):
 
     elif source=='uniprot' and target=='symbol':
         dictio=dict(zip(list(reversed(tab_uni[tab_uni.mapper=='Gene_Synonym'].uniprot.tolist())),
-                [int(g) for g in list(reversed(tab_uni[tab_uni.mapper=='Gene_Synonym'].id.tolist()))]))
+                [g for g in list(reversed(tab_uni[tab_uni.mapper=='Gene_Synonym'].id.tolist()))]))
         if return_not_mapped:
             for (original,mapped) in zip(query_list,list(map(dictio.get,query_list))):
                 map_str = str(mapped)
