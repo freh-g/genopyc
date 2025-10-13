@@ -79,9 +79,9 @@ def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, ge
     gene_nodes = list(sum(gene_nodes, []))
     tissue_nodes = list(sum(tissue_nodes, []))
     
-    Graph.add_nodes_from(variant_nodes, tipo='variant')
-    Graph.add_nodes_from(gene_nodes, tipo='gene')
-    Graph.add_nodes_from(tissue_nodes, tipo='tissue')
+    Graph.add_nodes_from((n, {"tipo": "variant", "label": n}) for n in variant_nodes)
+    Graph.add_nodes_from((n, {"tipo": "gene", "label": n}) for n in gene_nodes)
+    Graph.add_nodes_from((n, {"tipo": "tissue", "label": n}) for n in tissue_nodes)
     
     # Merge the data in the edgelists
     edgelist_genes_tissues = list(sum(edgelist_genes_tissues, []))
