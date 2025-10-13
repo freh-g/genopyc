@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: genopyc
-Version: 2.7.7
+Version: 2.7.9
 Author: Francesco Gualdi
 License: GPL
 Description-Content-Type: text/markdown
@@ -15,6 +15,12 @@ Requires-Dist: igraph
 Requires-Dist: dash
 Requires-Dist: dash_cytoscape
 Requires-Dist: gprofiler_official
+Dynamic: author
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: license
+Dynamic: license-file
+Dynamic: requires-dist
 
 <p align="center">
  <img src="https://github.com/freh-g/genopyc/blob/main/img/GenopycLogo.png?raw=true" width="60%" height="60%">

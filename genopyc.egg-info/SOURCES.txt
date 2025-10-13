@@ -12,7 +12,6 @@ genopyc/data/HUMAN_9606_idmapping.dat.gz
 genopyc/data/Homo_sapiens.gene_info.gz
 genopyc/data/__init__.py
 genopyc/data/hippie_interactome.sif
-genopyc/data/uberon_dict.pickle
 genopyc/epidemiology/__init__.py
 genopyc/epidemiology/get_associations.py
 genopyc/epidemiology/get_gdas.py

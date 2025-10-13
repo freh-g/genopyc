@@ -1,3 +1,4 @@
+
 import networkx as nx
 from genopyc.mapping.geneId_mapping import *
 
@@ -54,7 +55,7 @@ def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, ge
             tissue_identifier_in_the_network = 'tissue_name'
             eq_df.dropna(subset='tissue_name', inplace=True)  # None Cannot be a node in the network
         else:
-            tissue_identifier_in_the_network = 'tissue'
+            tissue_identifier_in_the_network = 'tissue_name'
         
         # Apply the filters if needed
         if tissue:
@@ -65,11 +66,11 @@ def make_eqtl_network(list_of_eqtls_df, tissue=None, gene=None, variant=None, ge
         # Making the edges
         attributes = [{'beta': v, 'color': 'green' if v > 0 else 'red'} for v in eq_df.beta.tolist()]
         annotations = [{'annotation': 'is_expressed_in'} for _ in eq_df[tissue_identifier_in_the_network].tolist()]
-        edgelist_variants_genes.append(list(zip(eq_df.variantid.tolist(), eq_df[gene_identifier_in_the_network].tolist(), attributes)))
+        edgelist_variants_genes.append(list(zip(eq_df.rsid.tolist(), eq_df[gene_identifier_in_the_network].tolist(), attributes)))
         edgelist_genes_tissues.append(list(zip(eq_df[gene_identifier_in_the_network].tolist(), eq_df[tissue_identifier_in_the_network].tolist(), annotations)))
         
         # Making the nodes
-        variant_nodes.append(list(set(eq_df.variantid.tolist())))
+        variant_nodes.append(list(set(eq_df.rsid.tolist())))
         gene_nodes.append(list(set(eq_df[gene_identifier_in_the_network].tolist())))
         tissue_nodes.append(list(set(eq_df[tissue_identifier_in_the_network].tolist())))
         
