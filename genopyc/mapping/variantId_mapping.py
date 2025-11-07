@@ -135,7 +135,6 @@ def variantId_mapping(list_of_variants, source='variantid', target='rsid'):
     
     if (source == 'variantid') & (target == 'rsid'):
         results = variantid2rsid(list_of_variants)
-        return variantids
         
     elif (source == 'rsid') & (target == 'variantid'):
         MappingDict = {}
