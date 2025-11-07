@@ -139,7 +139,7 @@ def variantId_mapping(list_of_variants, source='variantid', target='rsid'):
         
     elif (source == 'rsid') & (target == 'variantid'):
         MappingDict = {}
-        info = gp.get_variants_info(list_of_variants)
+        info = get_variants_info(list_of_variants)
         
         for v in list_of_variants:
             try:
@@ -155,7 +155,7 @@ def variantId_mapping(list_of_variants, source='variantid', target='rsid'):
     
     elif (source == 'rsids') & (target == 'hgvs'):
         results = {}
-        info = gp.get_variants_info(list_of_variants)
+        info = get_variants_info(list_of_variants)
         variantids = {v:extract_positions(info[v]) for v in list_of_variants}
         for var in list_of_variants:
             try:
