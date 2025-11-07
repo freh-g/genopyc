@@ -8,3 +8,4 @@ igraph
 dash
 dash_cytoscape
 gprofiler_official
+matplotlib

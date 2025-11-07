@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: genopyc
-Version: 2.8.0
+Version: 2.8.1
 Author: Francesco Gualdi
 License: GPL
 Description-Content-Type: text/markdown
@@ -15,6 +15,7 @@ Requires-Dist: igraph
 Requires-Dist: dash
 Requires-Dist: dash_cytoscape
 Requires-Dist: gprofiler_official
+Requires-Dist: matplotlib
 Dynamic: author
 Dynamic: description
 Dynamic: description-content-type
