@@ -3,6 +3,69 @@ import re
 from genopyc.genomic_features.get_variants_info import get_variants_info
 
 def variantId_mapping(list_of_variants, source='variantid', target='rsid'):
+    """
+    Convert genetic variant identifiers between multiple formats.
+
+    This function allows conversion of genetic variant identifiers across
+    several commonly used formats, using parsing logic, Ensembl REST API calls,
+    and variant metadata from `genopyc.genomic_features.get_variants_info`.
+
+    Supported identifier types:
+        - **variantid** : "CHR_POS_REF_ALT" format (e.g., "1_55516888_T_C")
+        - **rsid / rsids** : dbSNP identifiers (e.g., "rs12345")
+        - **hgvs** : HGVS genomic notation (e.g., "NC_000001.11:g.55516888T>C")
+
+    Supported conversion directions:
+        - variantid → rsid
+        - rsid → variantid
+        - variantid → hgvs
+        - hgvs → variantid
+        - hgvs → rsids
+        - rsids → hgvs
+
+    Parameters
+    ----------
+    list_of_variants : list of str
+        List of variant identifiers to convert. The format depends on `source`.
+    source : {'variantid', 'rsid', 'rsids', 'hgvs'}, default 'variantid'
+        The format of the input variants.
+    target : {'variantid', 'rsid', 'rsids', 'hgvs'}, default 'rsid'
+        The desired output format.
+
+    Returns
+    -------
+    dict
+        Standardized output mapping each input identifier to its converted value(s).
+        Depending on the conversion:
+            - variantid → rsid: dict {variantid → rsid or None}
+            - rsid → variantid: dict {rsid → list of variantid(s)}
+            - hgvs → rsids: dict {hgvs → rsid(s)}
+            - rsids → hgvs: dict {rsid → list of hgvs strings}
+            - variantid → hgvs: dict {variantid → hgvs string}
+            - hgvs → variantid: dict {hgvs → variantid string}
+
+        Failed conversions return `None` or an explanatory string.
+
+    Notes
+    -----
+    - Uses Ensembl REST API `/variant_recoder/homo_sapiens` to resolve rsIDs.
+    - Uses `get_variants_info` to extract genomic positions when converting rsid → variantid or rsids → hgvs.
+    - Handles multi-allelic variants by creating separate entries for each ALT allele.
+    - Conversion to HGVS relies on a predefined GRCh38 RefSeq mapping for common chromosomes.
+    - Non-standard chromosomes or malformed inputs are skipped or return descriptive errors.
+
+    Examples
+    --------
+    >>> variantId_mapping(["1_55516888_T_C"], source="variantid", target="rsid")
+    {'1_55516888_T_C': 'rs123456'}
+
+    >>> variantId_mapping(["rs123456"], source="rsid", target="variantid")
+    {'rs123456': ['1_55516888_T_C']}
+
+    >>> variantId_mapping(["NC_000001.11:g.55516888T>C"], source="hgvs", target="variantid")
+    {'NC_000001.11:g.55516888T>C': '1_55516888_T_C'}
+    """
+
     def extract_positions(variant_dict):
         """
         Extracts chr, pos, ref, alt for standard chromosomes,
@@ -131,7 +194,7 @@ def variantId_mapping(list_of_variants, source='variantid', target='rsid'):
             except:
                 final_res[var] = None
         
-        return(final_res)
+        return final_res
     
     if (source == 'variantid') & (target == 'rsid'):
         results = variantid2rsid(list_of_variants)
